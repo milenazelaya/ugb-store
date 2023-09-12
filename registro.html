@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .navbar-brand .ugb, .navbar-brand .store {
+            position: relative;
+        }
+
+        .navbar-brand .ugb::after, .navbar-brand .store::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+
+        .navbar-brand .ugb {
+            color: red;
+        }
+
+        .navbar-brand .store {
+            color: white;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+        }
+
+        .navbar-nav .nav-link.active {
+            font-weight: bold;
+        }
+
+        .btn-outline-light {
+            margin-left: 5px;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                flex-direction: column;
+            }
+
+            .d-flex {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .form-select, .form-control {
+                margin-bottom: 10px;
+            }
+        }
+
+        .registration-box {
+            background-color: #0f1012; /* Color de fondo gris */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgb(0, 0, 0);
+            max-width: 500px;
+            margin: 50px auto;
+            color: white; /* Color de texto blanco */
+        }
+
+        body {
+            background-image: url('imag/background.svg');
+            background-repeat: no-repeat;
+            background-size: 50%; /* Hace la imagen más pequeña */
+            background-position: -130px calc(120% - 100px);
+        }
+
+        .btn-transparent {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+        }
+
+        .btn-transparent:hover, .btn-transparent:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .move-right {
+            margin-left: auto;
+            margin-right: -50px; /* Ajusta este valor según tus necesidades */
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <span class="ugb">UGB</span>
+                <span class="store">Store</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="acerca.html">Acerca de</a>
+                    </li>
+                </ul>
+                <form class="d-flex me-3 mb-3 mt-3">
+                    <div class="me-2">
+                        <select class="form-select" aria-label="Filter">
+                            <option selected>All</option>
+                            <option value="1">Category 1</option>
+                            <option value="2">Category 2</option>
+                            <option value="3">Category 3</option>
+                        </select>
+                    </div>
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                <div class="ms-auto mb-2">
+                    <a href="registro.html" class="btn btn-outline-light">Registrarse</a>
+                    <a href="login.html" class="btn btn-outline-light">Iniciar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-5">
+        <div class="registration-box">
+            <h2 class="text-center">Registro de Estudiantes</h2>
+            <form id="studentRegistrationForm" action="http://127.0.0.1:3000/register" method="POST">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" name="firstName" id="firstName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Apellido</label>
+                    <input type="text" class="form-control" name="lastName" id="lastName" required>
+                </div>
+               
+                                    
+                <div class="mb-3">
+                    <label for="email" class="form-label">Correo Institucional</label>
+                    <input type="email" class="form-control" name="email" id="email" pattern=".+@ugb\.edu\.sv$" title="El correo debe terminar con @ugb.edu.sv" required>
+                    <div class="invalid-feedback">
+                        Por favor, ingresa un correo con terminación @ugb.edu.sv.
+                    </div>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="studentCode" class="form-label">Código de Estudiante</label>
+                    <input type="text" class="form-control" name="studentCode" id="studentCode" pattern="^USIS\d{6}$" title="El código debe comenzar con 'USIS' seguido de 6 dígitos." required>
+                    <div class="invalid-feedback">
+                        El código debe comenzar con 'USIS' seguido de 6 dígitos.
+                    </div>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" name="password" id="password" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" required>
+                    <div class="invalid-feedback">
+                        Las contraseñas no coinciden.
+                    </div>
+                </div>
+
+
+               
+
+
+                <button type="submit" class="btn btn-transparent mb-0 mb-md-0">Registrar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const form = document.getElementById('studentRegistrationForm');
+        
+        form.addEventListener('submit', function (event) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (password !== confirmPassword) {
+            event.preventDefault();
+            document.getElementById('confirmPassword').classList.add('is-invalid');
+        } else {
+            document.getElementById('confirmPassword').classList.remove('is-invalid');
+        }
+
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+        
+    </script>
+</body>
+</html>
