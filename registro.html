@@ -95,7 +95,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="inicio.html">
                 <span class="ugb">UGB</span>
                 <span class="store">Store</span>
             </a>
@@ -108,18 +108,7 @@
                         <a class="nav-link" href="acerca.html">Acerca de</a>
                     </li>
                 </ul>
-                <form class="d-flex me-3 mb-3 mt-3">
-                    <div class="me-2">
-                        <select class="form-select" aria-label="Filter">
-                            <option selected>All</option>
-                            <option value="1">Category 1</option>
-                            <option value="2">Category 2</option>
-                            <option value="3">Category 3</option>
-                        </select>
-                    </div>
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
+                
                 <div class="ms-auto mb-2">
                     <a href="registro.html" class="btn btn-outline-light">Registrarse</a>
                     <a href="login.html" class="btn btn-outline-light">Iniciar Sesión</a>
@@ -153,11 +142,12 @@
 
                 <div class="mb-3">
                     <label for="studentCode" class="form-label">Código de Estudiante</label>
-                    <input type="text" class="form-control" name="studentCode" id="studentCode" pattern="^USIS\d{6}$" title="El código debe comenzar con 'USIS' seguido de 6 dígitos." required>
+                    <input type="text" class="form-control" name="studentCode" id="studentCode" pattern="^(USEL|USEP|USJS|USSS|USLY|USAS|USTS)\d{6}$" title="El código debe comenzar con una de las abreviaciones de las carreras (por ejemplo, 'USEL') seguido de 6 dígitos." required>
                     <div class="invalid-feedback">
-                        El código debe comenzar con 'USIS' seguido de 6 dígitos.
+                        El código debe comenzar con una de las abreviaciones de las carreras (por ejemplo, 'USEL') seguido de 6 dígitos.
                     </div>
                 </div>
+                
 
 
                 <div class="mb-3">
