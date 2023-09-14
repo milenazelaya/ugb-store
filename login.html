@@ -63,6 +63,7 @@
 
         /* Estilos para la caja de inicio de sesión */
         .login-box {
+            position: relative;
             background-color: #0f1012; /* Color de fondo gris */
             padding: 20px;
             border-radius: 10px;
@@ -81,6 +82,15 @@
         .btn-transparent:hover, .btn-transparent:focus {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+        #submitBtn1 {
+    position: absolute;
+    top: 230px;    
+    right: 20px;  
+}
+
+
+        
     </style>
 </head>
 <body>
@@ -134,6 +144,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-transparent mb-0 mb-md-0">Iniciar Sesión</button>
+                <a href="registro.html" id="submitBtn1"  class="btn btn-outline-light">Registrarse</a>
             </form>
         </div>
     </div>

@@ -58,6 +58,8 @@
             }
         }
 
+        
+
         .registration-box {
             background-color: #0f1012; /* Color de fondo gris */
             padding: 20px;
@@ -66,6 +68,7 @@
             max-width: 500px;
             margin: 50px auto;
             color: white; /* Color de texto blanco */
+            position: relative;
         }
 
         body {
@@ -89,6 +92,18 @@
             margin-left: auto;
             margin-right: -50px; /* Ajusta este valor según tus necesidades */
         }
+
+        #submitBtn1 {
+         position: absolute;
+            top:570px;    /* Mover hacia abajo desde la parte superior del contenedor */
+            right: 20px;  /* Mover hacia la izquierda desde el lado derecho del contenedor */
+            /* Si deseas moverlo desde el lado izquierdo o desde la parte inferior, puedes usar 'left' y 'bottom' respectivamente */
+        }
+            
+
+
+  
+        
     </style>
 </head>
 <body>
@@ -120,8 +135,8 @@
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-light" type="submit">Search</button>
                 </form>
-                <div class="ms-auto mb-2">
-                    <a href="registro.html" class="btn btn-outline-light">Registrarse</a>
+                <div class="ms-auto mb-2"><a href="registro.html" class="btn btn-outline-light">Registrarse</a>
+                    
                     <a href="login.html" class="btn btn-outline-light">Iniciar Sesión</a>
                 </div>
             </div>
@@ -178,8 +193,14 @@
                
 
                 <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
-
-                <button type="submit" id="submitBtn" class="btn btn-transparent mb-0 mb-md-0">Registrar</button>
+                <div class="mb-3">
+                    <button type="submit" id="submitBtn" class="btn btn-transparent">Registrar</button>
+                </div>
+                <div class="mb-3">
+                    <a href="login.html" id="submitBtn1" class="btn btn-transparent ml-2">Iniciar Sesión</a>
+                </div>
+                
+                
 
             </form>
         </div>
