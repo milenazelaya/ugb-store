@@ -32,6 +32,13 @@ const Student = mongoose.model('Student', studentSchema);
 
 // Ruta POST para registrar estudiantes
 app.post('/register', async (req, res) => {
+    console.log("Cuerpo de la solicitud:", req.body);
+
+    if (!req.body.password) {
+        console.error("Contraseña no proporcionada en la solicitud.");
+        return res.status(400).json({ success: false, message: 'Contraseña no proporcionada.' });
+    }
+
     try {
         // Hash the password
         const salt = await bcrypt.genSalt(10);
@@ -46,24 +53,22 @@ app.post('/register', async (req, res) => {
         });
 
         await student.save();
+        res.json({ success: true, message: 'Registro exitoso.' });
         
-         // Redirigir al usuario a login.html después de registrarse exitosamente
-         res.redirect('\login.html'); // Asegúrate de reemplazar '/path/to/login.html' con la ruta correcta a tu archivo login.html
-       
-        
-        } catch (error) {
-            if (error.code === 11000) { // Código de error de MongoDB para duplicados
-                if (error.keyPattern.email) {
-                    return res.status(400).send('El correo ya está registrado.');
-                }
-                if (error.keyPattern.studentCode) {
-                    return res.status(400).send('El código de estudiante ya está registrado.');
-                }
+    } catch (error) {
+        if (error.code === 11000) {
+            if (error.keyPattern.email) {
+                return res.status(400).json({ success: false, message: 'El correo ya está registrado.' });
+
             }
-            console.error("Error al registrar el estudiante:", error);
-            res.status(500).send('Error al registrar. Inténtalo de nuevo.');
+            if (error.keyPattern.studentCode) {
+                return res.status(400).json({ success: false, message: 'El código de estudiante ya está registrado.' });
+            }
         }
-    });
+        console.error("Error al registrar el estudiante:", error);
+        res.status(500).json({ success: false, message: 'Error al registrar. Inténtalo de nuevo.' });
+    }
+});
 
 app.post('/login', async (req, res) => {
     console.log("Datos recibidos:", req.body);
@@ -93,4 +98,5 @@ app.post('/login', async (req, res) => {
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+
 });

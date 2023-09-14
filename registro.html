@@ -95,7 +95,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="inicio.html">
+            <a class="navbar-brand" href="#">
                 <span class="ugb">UGB</span>
                 <span class="store">Store</span>
             </a>
@@ -108,7 +108,18 @@
                         <a class="nav-link" href="acerca.html">Acerca de</a>
                     </li>
                 </ul>
-                
+                <form class="d-flex me-3 mb-3 mt-3">
+                    <div class="me-2">
+                        <select class="form-select" aria-label="Filter">
+                            <option selected>All</option>
+                            <option value="1">Category 1</option>
+                            <option value="2">Category 2</option>
+                            <option value="3">Category 3</option>
+                        </select>
+                    </div>
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
                 <div class="ms-auto mb-2">
                     <a href="registro.html" class="btn btn-outline-light">Registrarse</a>
                     <a href="login.html" class="btn btn-outline-light">Iniciar Sesión</a>
@@ -142,12 +153,12 @@
 
                 <div class="mb-3">
                     <label for="studentCode" class="form-label">Código de Estudiante</label>
-                    <input type="text" class="form-control" name="studentCode" id="studentCode" pattern="^(USEL|USEP|USJS|USSS|USLY|USAS|USTS)\d{6}$" title="El código debe comenzar con una de las abreviaciones de las carreras (por ejemplo, 'USEL') seguido de 6 dígitos." required>
+                    <input type="text" class="form-control" name="studentCode" id="studentCode" pattern="^(USIS|UMED|UING|UADM|UCOM|USEL|USEP|USJS|USSS|USLY|USAS|USTS)\d{6}$" title="El código debe comenzar con una de las abreviaciones válidas (por ejemplo, 'USIS') seguido de 6 dígitos." required>
+
                     <div class="invalid-feedback">
-                        El código debe comenzar con una de las abreviaciones de las carreras (por ejemplo, 'USEL') seguido de 6 dígitos.
+                        El código debe comenzar con 'el codigo Institucional' seguido de 6 dígitos.
                     </div>
                 </div>
-                
 
 
                 <div class="mb-3">
@@ -166,8 +177,10 @@
 
                
 
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
 
-                <button type="submit" class="btn btn-transparent mb-0 mb-md-0">Registrar</button>
+                <button type="submit" id="submitBtn" class="btn btn-transparent mb-0 mb-md-0">Registrar</button>
+
             </form>
         </div>
     </div>
@@ -177,25 +190,55 @@
     
     <script>
         const form = document.getElementById('studentRegistrationForm');
-        
-        form.addEventListener('submit', function (event) {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
+const submitBtn = document.getElementById('submitBtn');
+const errorMessage = document.getElementById('errorMessage');
 
-        if (password !== confirmPassword) {
-            event.preventDefault();
-            document.getElementById('confirmPassword').classList.add('is-invalid');
-        } else {
-            document.getElementById('confirmPassword').classList.remove('is-invalid');
-        }
+submitBtn.addEventListener('click', function(event) {
+    event.preventDefault();
 
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        document.getElementById('confirmPassword').classList.add('is-invalid');
+        return;
+    } else {
+        document.getElementById('confirmPassword').classList.remove('is-invalid');
+    }
+
+    if (!form.checkValidity()) {
         form.classList.add('was-validated');
+        return;
+    }
+
+    // Enviar datos al servidor usando AJAX
+    // Enviar datos al servidor usando AJAX
+$.ajax({
+    type: "POST",
+    url: form.action,
+    data: $(form).serialize(),
+    dataType: "json"
+})
+.done(function(response) {
+    if (response.success) {
+        // Si el registro fue exitoso, redirige al usuario
+        window.location.href = '/login.html';
+    } else {
+        // Si hubo un problema, muestra el mensaje de error
+        errorMessage.textContent = response.message || 'Error desconocido.';
+        errorMessage.classList.remove('d-none');
+    }
+})
+.fail(function(jqXHR, textStatus, errorThrown) {
+    // Mostrar el mensaje de error del servidor
+    errorMessage.textContent = jqXHR.responseJSON.message || 'Error al registrar. Inténtalo de nuevo.';
+    errorMessage.classList.remove('d-none');
+});
+
+
+
     });
-        
+
     </script>
 </body>
 </html>
