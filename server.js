@@ -34,6 +34,12 @@ const Student = mongoose.model('Student', studentSchema);
 app.post('/register', async (req, res) => {
     console.log("Cuerpo de la solicitud:", req.body);
 
+    const emailPrefix = req.body.email.split('@')[0].toUpperCase();
+    if (emailPrefix !== req.body.studentCode) {
+        return res.status(400).json({ success: false, message: 'El correo y el código de estudiante deben coincidir.' });
+    }
+
+
     if (!req.body.password) {
         console.error("Contraseña no proporcionada en la solicitud.");
         return res.status(400).json({ success: false, message: 'Contraseña no proporcionada.' });
@@ -59,7 +65,6 @@ app.post('/register', async (req, res) => {
         if (error.code === 11000) {
             if (error.keyPattern.email) {
                 return res.status(400).json({ success: false, message: 'El correo ya está registrado.' });
-
             }
             if (error.keyPattern.studentCode) {
                 return res.status(400).json({ success: false, message: 'El código de estudiante ya está registrado.' });
