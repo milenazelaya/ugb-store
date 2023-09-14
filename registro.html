@@ -159,7 +159,8 @@
                                     
                 <div class="mb-3">
                     <label for="email" class="form-label">Correo Institucional</label>
-                    <input type="email" class="form-control" name="email" id="email" pattern=".+@ugb\.edu\.sv$" title="El correo debe terminar con @ugb.edu.sv" required>
+                    <input type="email" class="form-control" name="email" id="email" pattern="^(usis|umed|uing|uadm|ucom|usel|usep|usjs|usss|usly|usas|usts)\d{6}@ugb\.edu\.sv$" title="El correo debe comenzar con una de las cadenas especificadas seguido de 6 dígitos y terminar con @ugb.edu.sv" required>
+
                     <div class="invalid-feedback">
                         Por favor, ingresa un correo con terminación @ugb.edu.sv.
                     </div>
@@ -192,7 +193,7 @@
 
                
 
-                <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+                
                 <div class="mb-3">
                     <button type="submit" id="submitBtn" class="btn btn-transparent">Registrar</button>
                 </div>
@@ -200,7 +201,7 @@
                     <a href="login.html" id="submitBtn1" class="btn btn-transparent ml-2">Iniciar Sesión</a>
                 </div>
                 
-                
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
 
             </form>
         </div>
