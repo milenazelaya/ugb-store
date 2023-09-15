@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const nodemailer = require('nodemailer');
+
 
 
 const app = express();
@@ -12,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join('C:', 'Escritorio', 'ugb store')));
+
 
 
 // Conexión a MongoDB
@@ -29,6 +32,89 @@ const studentSchema = new mongoose.Schema({
 });
 
 const Student = mongoose.model('Student', studentSchema);
+
+const resetPasswordSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Student'
+    },
+    resetPasswordToken: {
+        type: String,
+        required: true
+    },
+    expire: {
+        type: Date,
+        required: true
+    }
+});
+
+const ResetPassword = mongoose.model('ResetPassword', resetPasswordSchema);
+
+const crypto = require('crypto'); // para generar tokens
+
+// Configuración de Nodemailer
+let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'nathy.zelaya5@gmail.com', // Reemplaza con tu correo
+        pass: 'eyiiepqaxfsutdmz' // Reemplaza con tu contraseña
+    }
+});
+
+
+app.post('/request-password-reset', async (req, res) => {
+    const email = req.body.email;
+    const user = await Student.findOne({ email: email });
+
+    if (!user) {
+        return res.status(400).send('Correo no registrado.');
+    }
+
+    // Generar un token
+    const token = crypto.randomBytes(20).toString('hex');
+
+    // Almacenar el token en la base de datos con una fecha de vencimiento
+    const resetPasswordRecord = new ResetPassword({
+        userId: user._id,
+        resetPasswordToken: token,
+        expire: Date.now() + 3600000
+    });
+
+    await resetPasswordRecord.save();
+
+    // Configurar opciones del correo
+    let mailOptions = {
+        from: 'nathy.zelaya5@gmail.com',
+        to: email,
+        subject: 'Restablecimiento de Contraseña',
+        text: `Hola,
+
+Has solicitado restablecer tu contraseña. Por favor, haz clic en el siguiente enlace para restablecerla:
+
+http://localhost:3000/reset-password.html?token=${token}
+
+Si no has solicitado este cambio, ignora este correo.
+
+Saludos,
+Tu equipo`
+    };
+
+    // Enviar el correo
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Error al enviar el correo:', error);
+            return res.status(500).send('Error al enviar el correo de restablecimiento.');
+        } else {
+            console.log('Correo enviado exitosamente:', info.response);
+            res.send('Solicitud de recuperación enviada. Por favor, revisa tu correo.');
+        }
+    });
+});
+
+
 
 // Ruta POST para registrar estudiantes
 app.post('/register', async (req, res) => {
@@ -98,6 +184,35 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Error al iniciar sesión. Inténtalo de nuevo.');
     }
 });
+
+app.post('/reset-password', async (req, res) => {
+    const token = req.body.token;
+    const newPassword = req.body.newPassword;
+
+    const resetPasswordRecord = await ResetPassword.findOne({ resetPasswordToken: token });
+
+    if (!resetPasswordRecord) {
+        return res.status(400).json({ message: 'Token inválido o expirado.' });
+    }
+    
+    if (Date.now() > resetPasswordRecord.expire) {
+        return res.status(400).json({ message: 'Token expirado.' });
+    }
+    
+
+    const user = await Student.findById(resetPasswordRecord.userId);
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    // Eliminar el token de recuperación ya que ya no es necesario
+    await ResetPassword.findByIdAndDelete(resetPasswordRecord._id);
+    res.json({ message: 'Contraseña actualizada con éxito.' });
+});
+
+
+
+
+
 
 // Iniciar el servidor en el puerto 3000
 const PORT = 3000;
