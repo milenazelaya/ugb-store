@@ -194,11 +194,10 @@ app.post('/reset-password', async (req, res) => {
     if (!resetPasswordRecord) {
         return res.status(400).json({ message: 'Token inválido o expirado.' });
     }
-    
+
     if (Date.now() > resetPasswordRecord.expire) {
         return res.status(400).json({ message: 'Token expirado.' });
     }
-    
 
     const user = await Student.findById(resetPasswordRecord.userId);
     user.password = await bcrypt.hash(newPassword, 10);
