@@ -4,9 +4,8 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const nodemailer = require('nodemailer');
-const csurf = require('csurf');
-const cookieParser = require('cookie-parser'); // Necesario para csurf si usas cookies
 
+// Cargar las variables de entorno
 require('dotenv').config();
 
 const app = express();
@@ -14,14 +13,7 @@ const app = express();
 // Configuración de bodyParser y CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const corsOptions = {
-    origin: 'http://localhost:3000', // Cambia esto a tu dominio de confianza
-    optionsSuccessStatus: 200
-};
-
 app.use(cors());
-app.use(cookieParser()); // Necesario para csurf si usas cookies
-app.use(csurf({ cookie: true })); // Usando cookies para csurf
 app.use(express.static(path.join('C:', 'Escritorio', 'ugb store')));
 
 
@@ -68,19 +60,12 @@ let transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: process.env.EMAIL_USER, // Usa la variable de entorno EMAIL_USER
-        pass: process.env.EMAIL_PASS  // Usa la variable de entorno EMAIL_PASS
+        user: process.env.EMAIL_USER, // Usando la variable de entorno
+        pass: process.env.EMAIL_PASS  // Usando la variable de entorno
     }
 });
 
 
-app.use((err, req, res, next) => {
-    if (err.code === 'EBADCSRFTOKEN') {
-        res.status(403).send('Formulario no válido o ha expirado. Por favor, inténtalo de nuevo.');
-    } else {
-        next(err);
-    }
-});
 
 app.post('/request-password-reset', async (req, res) => {
     const email = req.body.email;
@@ -211,10 +196,11 @@ app.post('/reset-password', async (req, res) => {
     if (!resetPasswordRecord) {
         return res.status(400).json({ message: 'Token inválido o expirado.' });
     }
-
+    
     if (Date.now() > resetPasswordRecord.expire) {
         return res.status(400).json({ message: 'Token expirado.' });
     }
+    
 
     const user = await Student.findById(resetPasswordRecord.userId);
     user.password = await bcrypt.hash(newPassword, 10);

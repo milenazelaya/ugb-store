@@ -194,6 +194,7 @@
                 
                 <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
 
+              
             </form>
         </div>
     </div>
@@ -202,70 +203,71 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        const form = document.getElementById('studentRegistrationForm');
-const submitBtn = document.getElementById('submitBtn');
-const errorMessage = document.getElementById('errorMessage');
-
-function validateStudentCodeWithEmail(email, studentCode) {
-        const emailPrefix = email.split('@')[0].toUpperCase();
-        return emailPrefix === studentCode;
-    }
-
-submitBtn.addEventListener('click', function(event) {
-    event.preventDefault();
-
-    const email = document.getElementById('email').value;
-        const studentCode = document.getElementById('studentCode').value;
-
-        if (!validateStudentCodeWithEmail(email, studentCode)) {
-            errorMessage.textContent = "El correo y el código de estudiante deben coincidir.";
-            errorMessage.classList.remove('d-none');
-            return;
-        }
-
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    if (password !== confirmPassword) {
-        document.getElementById('confirmPassword').classList.add('is-invalid');
-        return;
-    } else {
-        document.getElementById('confirmPassword').classList.remove('is-invalid');
-    }
-
-    if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return;
-    }
-
-    // Enviar datos al servidor usando AJAX
-  
-$.ajax({
-    type: "POST",
-    url: form.action,
-    data: $(form).serialize(),
-    dataType: "json"
-})
-.done(function(response) {
-    if (response.success) {
-        // Si el registro fue exitoso, redirige al usuario
-        window.location.href = '/login.html';
-    } else {
-        // Si hubo un problema, muestra el mensaje de error
-        errorMessage.textContent = response.message || 'Error desconocido.';
-        errorMessage.classList.remove('d-none');
-    }
-})
-.fail(function(jqXHR, textStatus, errorThrown) {
-    // Mostrar el mensaje de error del servidor
-    errorMessage.textContent = jqXHR.responseJSON.message || 'Error al registrar. Inténtalo de nuevo.';
-    errorMessage.classList.remove('d-none');
-});
-
-
-
-    });
-
+        $(document).ready(function() {
+            const form = document.getElementById('studentRegistrationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMessage = document.getElementById('errorMessage');
+        
+            function validateStudentCodeWithEmail(email, studentCode) {
+                const emailPrefix = email.split('@')[0].toUpperCase();
+                return emailPrefix === studentCode;
+            }
+        
+            submitBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+        
+                const email = document.getElementById('email').value;
+                const studentCode = document.getElementById('studentCode').value;
+        
+                if (!validateStudentCodeWithEmail(email, studentCode)) {
+                    errorMessage.textContent = "El correo y el código de estudiante deben coincidir.";
+                    errorMessage.classList.remove('d-none');
+                    return;
+                }
+        
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+        
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmPassword').classList.add('is-invalid');
+                    return;
+                } else {
+                    document.getElementById('confirmPassword').classList.remove('is-invalid');
+                }
+        
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+        
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: $(form).serialize(),
+                    dataType: "json",
+                    withCredentials: true,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .done(function(response) {
+                    if (response.success) {
+                        window.location.href = '/login.html';
+                    } else {
+                        errorMessage.textContent = response.message || 'Error desconocido.';
+                        errorMessage.classList.remove('d-none');
+                    }
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    const responseMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : 'Error al registrar. Inténtalo de nuevo.';
+                    errorMessage.textContent = responseMessage;
+                    errorMessage.classList.remove('d-none');
+                    console.error("Error en la solicitud:", jqXHR, textStatus, errorThrown);
+                });
+            });
+        });
     </script>
+    
+        
 </body>
 </html>
