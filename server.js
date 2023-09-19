@@ -4,17 +4,35 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const nodemailer = require('nodemailer');
+const session = require('express-session'); // Importa express-session aqui
 
 // Cargar las variables de entorno
 require('dotenv').config();
 
 const app = express();
 
+// Configuración de express-session aqui
+app.use(session({
+    secret: 'tuSecretoAqui',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, httpOnly: true, sameSite: 'lax' }
+}));
+
+
+
 // Configuración de bodyParser y CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+//app.use(cors());
 app.use(express.static(path.join('C:', 'Escritorio', 'ugb store')));
+
+// Configuración de CORS
+const corsOptions = {
+    origin: 'http://127.0.0.1:5500', // Especifica el origen permitido AQUI
+    credentials: true
+};
+app.use(cors(corsOptions));
 
 
 
@@ -170,20 +188,24 @@ app.post('/login', async (req, res) => {
 
         if (!student) {
             console.log("Correo no encontrado en la base de datos.");
-            return res.status(400).send("el usuario o la contraseña no coincide por favor verifique sus datos");
+            return res.status(400).json({ message: "el usuario o la contraseña no coincide por favor verifique sus datos" });
         }
         
         const validPassword = await bcrypt.compare(req.body.password, student.password);
                 
         if (!validPassword) {
             console.log("Contraseña incorrecta.");
-            return res.status(400).send("el usuario o la contraseña no coincide por favor verifique sus datos");
+            return res.status(400).json({ message: "el usuario o la contraseña no coincide por favor verifique sus datos" });
         }
 
-        res.send('Inicio de sesión exitoso!');
+        // Guardar el ID del usuario en la sesión
+        req.session.userId = student._id;
+
+        console.log("Inicio de Sesion");
+        res.json({ success: true, message: 'Inicio de sesión exitoso!' });
     } catch (error) {
         console.error("Error al iniciar sesión:", error);
-        res.status(500).send('Error al iniciar sesión. Inténtalo de nuevo.');
+        res.status(500).json({ message: 'Error al iniciar sesión. Inténtalo de nuevo.' });
     }
 });
 
@@ -211,8 +233,45 @@ app.post('/reset-password', async (req, res) => {
     res.json({ message: 'Contraseña actualizada con éxito.' });
 });
 
+//aqui
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) throw err;
+        res.json({ success: true, message: 'Logged out successfully' });
+    });
+});
 
 
+app.get('/algunaRuta', (req, res) => {
+    if (req.session.userId) {
+        // El usuario está autenticado. aqui
+        // Puedes hacer algo específico para usuarios autenticados aquí.
+    } else {
+        // El usuario no está autenticado.
+        // Puedes redirigir al usuario a la página de inicio de sesión o mostrar un mensaje de error.
+    }
+});
+
+app.get('/current-user', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).send('No user is logged in.');
+    }
+
+    try {
+        const student = await Student.findById(req.session.userId);
+        if (!student) {
+            return res.status(404).send('User not found.');
+        }
+
+        res.json({ 
+            name: `${student.firstName} ${student.lastName}`,
+            code: student.studentCode  // Agregar el código del estudiante a la respuesta
+        });
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).send('Error fetching user.');
+    }
+});
 
 
 
