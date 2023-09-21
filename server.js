@@ -201,6 +201,8 @@ app.post('/login', async (req, res) => {
         // Guardar el ID del usuario en la sesión
         req.session.userId = student._id;
 
+        console.log("Usuario guardado en la sesión:", req.session.userId); // Añade esta línea
+
         console.log("Inicio de Sesion");
         res.json({ success: true, message: 'Inicio de sesión exitoso!' });
     } catch (error) {
@@ -235,8 +237,13 @@ app.post('/reset-password', async (req, res) => {
 
 //aqui
 app.get('/logout', (req, res) => {
+    console.log("Intentando cerrar sesión..."); // Añade esta línea
     req.session.destroy((err) => {
-        if (err) throw err;
+        if (err) {
+            console.error("Error al destruir la sesión:", err); // Añade esta línea
+            return res.status(500).json({ success: false, message: 'Error al cerrar sesión.' });
+        }
+        console.log("Sesión cerrada exitosamente."); // Añade esta línea
         res.json({ success: true, message: 'Logged out successfully' });
     });
 });
@@ -253,6 +260,7 @@ app.get('/algunaRuta', (req, res) => {
 });
 
 app.get('/current-user', async (req, res) => {
+    console.log("Contenido de la sesión:", req.session); // Añade esta línea
     if (!req.session.userId) {
         return res.status(401).send('No user is logged in.');
     }

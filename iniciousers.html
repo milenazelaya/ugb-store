@@ -98,9 +98,10 @@
                     <button class="btn btn-outline-light" type="submit">Search</button>
                 </form>
                 <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    Cargando... <!-- Texto temporal mientras se carga el nombre del usuario -->
+                    <span id="userNameContainer">Cargando...</span> <!-- Contenedor para el nombre del usuario -->
                     <span id="userCode" class="ms-2"></span> <!-- Aquí se mostrará el código del estudiante -->
                 </button>
+                
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="#" id="logoutBtn">Cerrar Sesión</a></li>
                     </ul>
@@ -115,79 +116,85 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-       document.getElementById('logoutBtn').addEventListener('click', function (event) {
-    event.preventDefault();
-
-    fetch('http://127.0.0.1:3000/logout', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = 'inicio.html';
-        } else {
-            console.error('Error al cerrar sesión');
-        }
-    })
-    .catch(error => {
-        console.error('Error al cerrar sesión:', error);
-    });
-});
-
-// Obtener el nombre y código del usuario actual
-document.getElementById('logoutBtn').addEventListener('click', function (event) {
-    event.preventDefault();
-
-    fetch('http://127.0.0.1:3000/logout', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Limpiar el localStorage al cerrar sesión
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userCode');
-            window.location.href = 'inicio.html';
-        } else {
-            console.error('Error al cerrar sesión');
-        }
-    })
-    .catch(error => {
-        console.error('Error al cerrar sesión:', error);
-    });
-});
-
-// Obtener el nombre y código del usuario desde el localStorage
-function loadCurrentUserFromLocalStorage() {
+        document.addEventListener('DOMContentLoaded', function() {
+    // Función para cargar el nombre y código del usuario desde el localStorage
+    function loadCurrentUserFromLocalStorage() {
     const userName = localStorage.getItem('userName');
     const userCode = localStorage.getItem('userCode');
 
-    if (userName && userCode) {
-        document.getElementById('userDropdown').textContent = userName;
-        document.getElementById('userCode').textContent = userCode;
+    const userNameContainerElement = document.getElementById('userNameContainer');
+    const userCodeElement = document.getElementById('userCode');
+
+    if (userName && userCode && userNameContainerElement && userCodeElement) {
+        userNameContainerElement.textContent = userName;
+        userCodeElement.textContent = userCode;
     } else {
-        console.error("No se encontró el nombre o código del usuario en el localStorage.");
-        document.getElementById('userDropdown').textContent = "Iniciar sesión";
+        console.error("No se encontró el nombre o código del usuario en el localStorage o los elementos del DOM no están disponibles.");
+        if (userNameContainerElement) {
+            userNameContainerElement.textContent = "Iniciar sesión";
+        }
     }
 }
 
-// Llamar a la función al cargar la página
-fetchCurrentUser();
 
+    // Función para cargar la información del usuario desde el servidor y guardarla en el localStorage
+    async function fetchCurrentUser() {
+        try {
+            const response = await fetch('http://127.0.0.1:3000/current-user', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
 
+            if (response.status === 200) {
+                const data = await response.json();
+                localStorage.setItem('userName', data.name);
+                localStorage.setItem('userCode', data.code);
+                loadCurrentUserFromLocalStorage();
+            } else {
+                console.error('Error al obtener el usuario actual:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error al obtener el usuario actual:', error);
+        }
+    }
 
+    // Llamar a la función al cargar la página
+    fetchCurrentUser();
+
+    document.getElementById('logoutBtn').addEventListener('click', function (event) {
+        event.preventDefault();
+
+        fetch('http://127.0.0.1:3000/logout', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Limpiar el localStorage al cerrar sesión
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userCode');
+                window.location.href = 'inicio.html';
+            } else {
+                console.error('Error al cerrar sesión');
+            }
+        })
+        .catch(error => {
+            console.error('Error al cerrar sesión:', error);
+        });
+    });
+});
 
     </script>
+    
 
 
 </body>
