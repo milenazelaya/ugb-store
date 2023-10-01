@@ -106,55 +106,7 @@
     </nav>
 
     <!-- Aquí va el resto del contenido de tu página -->
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h3>Subir Producto</h3>
-            </div>
-            <div class="card-body">
-                <form id="productForm">
-                    <!-- Imagen del Producto -->
-                    <div class="mb-3">
-                        <label for="productImage" class="form-label">Imagen del Producto</label>
-                        <input type="file" class="form-control" id="productImage" name="productImage" required>
-                    </div>
     
-                    <!-- Descripción del Producto -->
-                    <div class="mb-3">
-                        <label for="productDescription" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="productDescription" name="productDescription" rows="3" required></textarea>
-                    </div>
-    
-                    <!-- Precio del Producto -->
-                    <div class="mb-3">
-                        <label for="productPrice" class="form-label">Precio</label>
-                        <input type="number" class="form-control" id="productPrice" name="productPrice" required>
-                    </div>
-    
-                    <!-- Oferta -->
-                    <div class="mb-3">
-                        <label for="productOffer" class="form-label">Oferta (%)</label>
-                        <input type="number" class="form-control" id="productOffer" name="productOffer" placeholder="Ejemplo: 10 para un 10% de descuento">
-                    </div>
-    
-                    <!-- Disponibilidad -->
-                    <div class="mb-3">
-                        <label for="productAvailability" class="form-label">Disponibilidad</label>
-                        <select class="form-select" id="productAvailability" name="productAvailability" required>
-                            <option value="disponible">Disponible</option>
-                            <option value="no disponible">No Disponible</option>
-                        </select>
-                    </div>
-    
-                    <!-- Botones -->
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-primary">Enviar</button>
-                        <button type="button" class="btn btn-danger">Eliminar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

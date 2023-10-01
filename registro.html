@@ -171,6 +171,9 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" class="form-control" name="password" id="password" required>
+                    <div class="invalid-feedback" id="passwordFeedback">
+                        La contraseña es demasiado débil.
+                    </div>
                 </div>
                 
                 <div class="mb-3">
@@ -207,39 +210,56 @@
             const form = document.getElementById('studentRegistrationForm');
             const submitBtn = document.getElementById('submitBtn');
             const errorMessage = document.getElementById('errorMessage');
-        
+    
+            function isPasswordStrong(password) {
+                // La contraseña debe tener al menos 8 caracteres, 
+                // incluir una letra minúscula, una letra mayúscula, un número y un carácter especial.
+                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                return regex.test(password);
+            }
+    
             function validateStudentCodeWithEmail(email, studentCode) {
                 const emailPrefix = email.split('@')[0].toUpperCase();
                 return emailPrefix === studentCode;
             }
-        
+    
             submitBtn.addEventListener('click', function(event) {
                 event.preventDefault();
-        
+    
                 const email = document.getElementById('email').value;
                 const studentCode = document.getElementById('studentCode').value;
-        
+    
                 if (!validateStudentCodeWithEmail(email, studentCode)) {
                     errorMessage.textContent = "El correo y el código de estudiante deben coincidir.";
                     errorMessage.classList.remove('d-none');
                     return;
                 }
-        
+    
                 const password = document.getElementById('password').value;
+    
+                // Verifica si la contraseña es fuerte
+                if (!isPasswordStrong(password)) {
+                    document.getElementById('password').classList.add('is-invalid');
+                    document.getElementById('passwordFeedback').textContent = 'La contraseña debe tener al menos 8 caracteres, incluir una letra minúscula, una letra mayúscula, un número y un carácter especial.';
+                    return;
+                } else {
+                    document.getElementById('password').classList.remove('is-invalid');
+                }
+    
                 const confirmPassword = document.getElementById('confirmPassword').value;
-        
+    
                 if (password !== confirmPassword) {
                     document.getElementById('confirmPassword').classList.add('is-invalid');
                     return;
                 } else {
                     document.getElementById('confirmPassword').classList.remove('is-invalid');
                 }
-        
+    
                 if (!form.checkValidity()) {
                     form.classList.add('was-validated');
                     return;
                 }
-        
+    
                 $.ajax({
                     type: "POST",
                     url: form.action,
