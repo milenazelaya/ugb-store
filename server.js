@@ -1,15 +1,21 @@
-const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const session = require('express-session'); // Importa express-session aqui
+const express = require('express');
+const app = express();
+const multer = require('multer');
+
 
 // Cargar las variables de entorno
 require('dotenv').config();
 
-const app = express();
+
+
+
+
 
 // Configuración de express-session aqui
 app.use(session({
@@ -24,15 +30,26 @@ app.use(session({
 // Configuración de bodyParser y CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-//app.use(cors());
-app.use(express.static(path.join('C:', 'Escritorio', 'ugb store')));
+app.use(express.static(path.join('C:', 'Users', 'Usuario', 'Desktop', 'ugb-store')));
+app.use('/uploads', express.static('uploads'));
+
+
+
+
+
+
+
 
 // Configuración de CORS
 const corsOptions = {
-    origin: 'http://127.0.0.1:5500', // Especifica el origen permitido AQUI
+    origin: 'http://127.0.0.1:5500',
     credentials: true
 };
+
 app.use(cors(corsOptions));
+
+
+
 
 
 
@@ -41,17 +58,61 @@ mongoose.connect('mongodb://127.0.0.1:27017/users', { useNewUrlParser: true, use
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));
 
+
+    
+
+
+
 // Definición del esquema y modelo de estudiantes
 const studentSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     email:  { type: String, unique: true }, // Hacer el email único
     studentCode:{ type: String, unique: true }, // Hacer el código de estudiante único
-    password: String
+    password: String,
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 });
+
 
 const Student = mongoose.model('Student', studentSchema);
 
+const superUserSchema = new mongoose.Schema({
+    firstName: String,
+    lastName: String,
+    email: { type: String, unique: true },
+    password: String
+});
+
+const SuperUser = mongoose.model('SuperUser', superUserSchema);
+
+
+
+const productSchema = new mongoose.Schema({
+    name: String,
+    category: String,
+    description: String,
+    price: Number,
+    offer: String,
+    availability: String,
+    imageUrl: String,
+    stock: Number
+});
+
+const Product = mongoose.model('Product', productSchema);
+
+
+const bannerSchema = new mongoose.Schema({
+    imageUrl: String
+    // Puedes agregar más campos si es necesario
+});
+
+const Banner = mongoose.model('Banner', bannerSchema);
+
+
+// Definición del esquema y modelo para ResetPassword
 const resetPasswordSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -78,10 +139,24 @@ let transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: process.env.EMAIL_USER, // Usando la variable de entorno
-        pass: process.env.EMAIL_PASS  // Usando la variable de entorno
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS  
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
+
+// Configuración de Multer con ruta absoluta
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, 'uploads/'))
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
+});
+const upload = multer({ storage: storage });
 
 
 
@@ -90,7 +165,8 @@ app.post('/request-password-reset', async (req, res) => {
     const user = await Student.findOne({ email: email });
 
     if (!user) {
-        return res.status(400).send('Correo no registrado.');
+        return res.status(400).json({ message: 'Correo no registrado.' });
+        
     }
 
     // Generar un token
@@ -107,14 +183,14 @@ app.post('/request-password-reset', async (req, res) => {
 
     // Configurar opciones del correo
     let mailOptions = {
-        from: 'nathy.zelaya5@gmail.com',
+        from: 'ugbstore.assistance@outlook.com',
         to: email,
         subject: 'Restablecimiento de Contraseña',
         text: `Hola,
 
 Has solicitado restablecer tu contraseña. Por favor, haz clic en el siguiente enlace para restablecerla:
 
-http://localhost:3000/reset-password.html?token=${token}
+http://127.0.0.1:5500/reset-password.html?token=${token}
 
 Si no has solicitado este cambio, ignora este correo.
 
@@ -126,7 +202,7 @@ Tu equipo`
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log('Error al enviar el correo:', error);
-            return res.status(500).send('Error al enviar el correo de restablecimiento.');
+            return res.status(500).json({ message: 'Error al enviar el correo de restablecimiento.' });
         } else {
             console.log('Correo enviado exitosamente:', info.response);
             res.send('Solicitud de recuperación enviada. Por favor, revisa tu correo.');
@@ -183,33 +259,55 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     console.log("Datos recibidos:", req.body);
-    try {
+
+    let user = null;
+
+    // Intenta encontrar al usuario en SuperUser
+    const superUser = await SuperUser.findOne({ email: req.body.email });
+
+    if (superUser) {
+        console.log("SuperUser encontrado:", superUser);
+        user = superUser;
+    } else {
+        // Si no es un superusuario, intenta encontrarlo en Student
         const student = await Student.findOne({ email: req.body.email });
-
-        if (!student) {
-            console.log("Correo no encontrado en la base de datos.");
-            return res.status(400).json({ message: "el usuario o la contraseña no coincide por favor verifique sus datos" });
+        if (student) {
+            console.log("Student encontrado:", student);
+            user = student;
         }
-        
-        const validPassword = await bcrypt.compare(req.body.password, student.password);
-                
-        if (!validPassword) {
-            console.log("Contraseña incorrecta.");
-            return res.status(400).json({ message: "el usuario o la contraseña no coincide por favor verifique sus datos" });
-        }
-
-        // Guardar el ID del usuario en la sesión
-        req.session.userId = student._id;
-
-        console.log("Usuario guardado en la sesión:", req.session.userId); // Añade esta línea
-
-        console.log("Inicio de Sesion");
-        res.json({ success: true, message: 'Inicio de sesión exitoso!' });
-    } catch (error) {
-        console.error("Error al iniciar sesión:", error);
-        res.status(500).json({ message: 'Error al iniciar sesión. Inténtalo de nuevo.' });
     }
+
+    if (!user) {
+        console.log("Correo no encontrado en la base de datos.");
+        return res.status(400).json({ message: "El usuario o la contraseña no coincide. Por favor, verifica tus datos." });
+    }
+
+    console.log("Contraseña ingresada:", req.body.password);
+    console.log("Contraseña hasheada en la base de datos:", user.password);
+
+    console.log("Comparando contraseñas...");
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    console.log("Resultado de la comparación:", isMatch);
+
+    if (!isMatch) {
+        console.log("Contraseña incorrecta.");
+        return res.status(400).json({ message: "El usuario o la contraseña no coincide. Por favor, verifica tus datos." });
+    }
+
+    // Guardar el ID del usuario en la sesión
+    req.session.userId = user._id;
+
+    console.log("Usuario guardado en la sesión:", req.session.userId);
+
+    // Enviar respuesta con información sobre si el usuario es administrador o no
+    res.json({ 
+        success: true, 
+        message: 'Inicio de sesión exitoso!',
+        isAdmin: user instanceof SuperUser  // Esto determinará si el usuario es un SuperUser o no
+    });
 });
+
+
 
 app.post('/reset-password', async (req, res) => {
     const token = req.body.token;
@@ -237,13 +335,13 @@ app.post('/reset-password', async (req, res) => {
 
 //aqui
 app.get('/logout', (req, res) => {
-    console.log("Intentando cerrar sesión..."); // Añade esta línea
-    req.session.destroy((err) => {
+    console.log("Ruta /logout accedida"); // Añade esta línea
+req.session.destroy((err) => {
         if (err) {
-            console.error("Error al destruir la sesión:", err); // Añade esta línea
+            console.error("Error al destruir la sesión:", err);
             return res.status(500).json({ success: false, message: 'Error al cerrar sesión.' });
         }
-        console.log("Sesión cerrada exitosamente."); // Añade esta línea
+        console.log("Sesión cerrada exitosamente.");
         res.json({ success: true, message: 'Logged out successfully' });
     });
 });
@@ -260,26 +358,162 @@ app.get('/algunaRuta', (req, res) => {
 });
 
 app.get('/current-user', async (req, res) => {
-    console.log("Contenido de la sesión:", req.session); // Añade esta línea
+    console.log("Contenido de la sesión:", req.session);
     if (!req.session.userId) {
         return res.status(401).send('No user is logged in.');
     }
 
     try {
-        const student = await Student.findById(req.session.userId);
-        if (!student) {
-            return res.status(404).send('User not found.');
+        let user = await Student.findById(req.session.userId);
+        if (!user) {
+            user = await SuperUser.findById(req.session.userId);
+            if (!user) {
+                return res.status(404).send('User not found.');
+            }
         }
 
         res.json({ 
-            name: `${student.firstName} ${student.lastName}`,
-            code: student.studentCode  // Agregar el código del estudiante a la respuesta
+            name: `${user.firstName} ${user.lastName}`,
+            code: user.studentCode || "Admin"  // Si es un SuperUser, no tendrá un código de estudiante, así que puedes poner "Admin" o cualquier otro valor que desees.
         });
     } catch (error) {
         console.error("Error fetching user:", error);
         res.status(500).send('Error fetching user.');
     }
 });
+
+// Ruta para obtener todos los productos
+app.get('/products', async (req, res) => {
+    console.log("Solicitud de lista de productos");
+    try {
+        const products = await Product.find();
+        console.log("Productos recuperados de la base de datos:", products);  // Añade este registro
+        res.json(products);
+    } catch (error) {
+        console.error("Error al obtener los productos:", error);
+        res.status(500).send('Error al obtener los productos.');
+    }
+});
+
+
+// Ruta para obtener todos los banners
+app.get('/banners', async (req, res) => {
+    console.log("Solicitud de lista de banners");
+    try {
+        const banners = await Banner.find();
+        res.json(banners);
+    } catch (error) {
+        console.error("Error al obtener los banners:", error);
+        res.status(500).send('Error al obtener los banners.');
+    }
+});
+
+
+
+
+
+app.post('/upload-product', upload.single('productImage'), (req, res) => {
+    console.log("Intento de subir producto con datos:", req.body);
+    // Recoge el nombre del producto del cuerpo de la solicitud
+    const productName = req.body.productName;
+
+    const product = new Product({
+        name: req.body.productName,
+        imageUrl: '/uploads/' + req.file.filename,
+        category: req.body.productCategory,
+        description: req.body.productDescription,
+        price: req.body.productPrice,
+        offer: req.body.productOffer,
+        availability: req.body.productAvailability,
+        stock: req.body.productStock  // Asegúrate de que el nombre del campo coincida con el nombre que envías desde el frontend
+    });
+
+    product.save().then(() => {
+        res.json({ success: true, message: 'Producto subido con éxito' });
+    }).catch(err => {
+        res.json({ success: false, message: 'Error al subir el producto', error: err });
+    });
+});
+
+app.delete('/products/:id', async (req, res) => {
+    const productId = req.params.id;
+   
+    try {
+        await Product.findByIdAndDelete(productId);
+        res.status(200).json({ success: true, message: 'Producto eliminado con éxito.' });
+        
+    } catch (err) {
+        console.error("Error al eliminar el producto:", err);
+        res.status(500).json({ success: false, message: 'Error al eliminar el producto.' });
+       
+    }
+});
+
+
+// Ruta para actualizar un producto
+app.put('/products/:id', async (req, res) => {
+    const productId = req.params.id;
+    const updatedProductData = req.body;
+
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
+        if (!updatedProduct) {
+            return res.status(404).json({ success: false, message: 'Producto no encontrado.' });
+        }
+        res.status(200).json({ success: true, message: 'Producto actualizado con éxito.', product: updatedProduct });
+    } catch (err) {
+        console.error("Error al actualizar el producto:", err);
+        res.status(500).json({ success: false, message: 'Error al actualizar el producto.' });
+    }
+});
+
+
+
+app.post('/upload-banner', upload.single('bannerImage'), async (req, res) => {
+    console.log("Intento de subir banner con datos:", req.body);
+
+    const banner = new Banner({
+        imageUrl: '/uploads/' + req.file.filename
+    });
+
+    try {
+        const savedBanner = await banner.save();
+        res.json({ success: true, message: 'Banner subido con éxito', bannerId: savedBanner._id });
+    } catch (err) {
+        res.json({ success: false, message: 'Error al subir el banner', error: err });
+    }
+});
+
+app.delete('/banners/:id', async (req, res) => {
+    const bannerId = req.params.id;
+   
+    try {
+        await Banner.findByIdAndDelete(bannerId);
+        res.status(200).json({ success: true, message: 'Banner eliminado con éxito.' });
+        
+    } catch (err) {
+        console.error("Error al eliminar el banner:", err);
+        res.status(500).json({ success: false, message: 'Error al eliminar el banner.' });
+       
+    }
+});
+
+app.get('/banners', async (req, res) => {
+    console.log("Accediendo a la ruta de banners...");
+    try {
+        const banners = await Banner.find();
+        if (banners.length === 0) {
+            console.log("No se encontraron banners en la base de datos.");
+        } else {
+            console.log("Banners recuperados de la base de datos:", banners);
+        }
+        res.json(banners);
+    } catch (error) {
+        console.error("Error al obtener los banners:", error);
+        res.status(500).send('Error al obtener los banners.');
+    }
+});
+
 
 
 

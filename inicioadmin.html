@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         .navbar-brand {
             font-weight: 700;
@@ -83,9 +86,54 @@
         .container {
             max-width: 600px;
         }
+
+        #loadingScreen {
+    display: none; /* Estará oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#loadingScreen i {
+    font-size: 50px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+#loadingScreen p {
+    color: white;
+    font-size: 20px;
+}
+
+#previewImage, #previewPromoImage {
+            max-width: 500px;
+            display: none;
+            margin-top: 10px;
+        }
+
+       
+
     </style>
 </head>
 <body>
+   
+
+    <div id="loadingScreen">
+        <i class="fas fa-cog fa-spin"></i>
+        <p>Oh no, parece que no has iniciado sesión. Por favor, inicia sesión.</p>
+        <p>Automáticamente te redirigiremos al inicio de sesión. Espere un momento.</p>
+    </div>
+    
+    
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="inicioadmin.html">
@@ -96,19 +144,30 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="listado_de_productos.html">Ver Productos</a>
+                        <a class="nav-link" href="listado_de_productos.html">Ver Productos y Banners</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cargando...
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="cerrarSesion()">Cerrar Sesión</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    
 
     <!-- Aquí va el resto del contenido de tu página -->
     <div class="container mt-5">
         <div class="card">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-dark text-white">
                 <h3>Subir Producto</h3>
             </div>
             <div class="card-body">
@@ -118,6 +177,32 @@
                         <label for="productImage" class="form-label">Imagen del Producto</label>
                         <input type="file" class="form-control" id="productImage" name="productImage" required>
                     </div>
+
+                    <div class="mb-3">
+                        <img id="previewImage" class="preview-image" src="#" alt="Vista previa del producto" style="display:none;">
+                    </div>
+                    
+                    <!-- Nombre del Producto -->
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Nombre del Producto</label>
+                        <input type="text" class="form-control" id="productName" name="productName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productCategory" class="form-label">Categoría</label>
+                        <select class="form-select" id="productCategory" name="productCategory" required>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Diseño">Diseño</option>
+                            <option value="Leyes">Leyes</option>
+                            <option value="Accesorios para computadora y mochilas">Accesorios para computadora y mochilas</option>
+                            <option value="Promocionales">Promocionales</option>
+                            <option value="Enfermería">Enfermería</option>
+                            <option value="Utilería">Utilería</option>
+                        </select>
+                    </div>
+
+                    
+
     
                     <!-- Descripción del Producto -->
                     <div class="mb-3">
@@ -128,14 +213,23 @@
                     <!-- Precio del Producto -->
                     <div class="mb-3">
                         <label for="productPrice" class="form-label">Precio</label>
-                        <input type="number" class="form-control" id="productPrice" name="productPrice" required>
+                        <input type="text" class="form-control" id="productPrice" name="productPrice" pattern="^\d+(\.\d{0,2})?$" required>
+
                     </div>
     
                     <!-- Oferta -->
                     <div class="mb-3">
                         <label for="productOffer" class="form-label">Oferta (%)</label>
-                        <input type="number" class="form-control" id="productOffer" name="productOffer" placeholder="Ejemplo: 10 para un 10% de descuento">
+                        <input type="number" class="form-control" id="productOffer" name="productOffer" min="0" max="100" placeholder="Ejemplo: 10 para un 10% de descuento">
                     </div>
+
+
+                    <!-- Stock del Producto -->
+                    <div class="mb-3">
+                        <label for="productStock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="productStock" name="productStock" min="0" required>
+                    </div>
+
     
                     <!-- Disponibilidad -->
                     <div class="mb-3">
@@ -149,12 +243,238 @@
                     <!-- Botones -->
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Enviar</button>
-                        <button type="button" class="btn btn-danger">Eliminar</button>
+                        <button type="button" class="btn btn-danger" onclick="limpiarFormulario()">Eliminar</button>
                     </div>
                 </form>
+                
             </div>
         </div>
     </div>
+
+    <!-- Formulario para subir banners -->
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h3>Subir Banner</h3>
+        </div>
+        <div class="card-body">
+            <form id="bannerForm">
+                <!-- Imagen del Banner -->
+                <div class="mb-3">
+                    <label for="bannerImage" class="form-label">Imagen del Banner</label>
+                    <input type="file" class="form-control" id="bannerImage" name="bannerImage" required>
+                </div>
+
+                <!-- Vista previa de la imagen del Banner -->
+                <div class="mb-3">
+                    <img id="previewBannerImage" src="#" alt="Vista previa del banner" style="max-width: 100%; display: none;">
+                </div>
+
+                <!-- Botones -->
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Subir Banner</button>
+                    <button type="button" class="btn btn-danger" onclick="limpiarFormularioBanner()">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+    
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    if (!isLoggedIn || isLoggedIn !== 'true') {
+        loadingScreen.style.display = 'flex'; // Muestra la pantalla de carga
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 3000);
+        return;
+    } else {
+        loadingScreen.style.display = 'none'; // Oculta la pantalla de carga
+    }
+
+    const adminData = JSON.parse(localStorage.getItem('adminData'));
+    const adminDropdownLink = document.querySelector('#adminDropdown');
+    if (adminData && adminData.name) {
+        adminDropdownLink.textContent = adminData.name;
+    } else {
+        adminDropdownLink.textContent = 'Admin';
+    }
+});
+
+function limpiarFormulario() {
+    document.getElementById("productForm").reset();
+
+    const previewImage = document.getElementById('previewImage');
+    if (previewImage) {
+        previewImage.style.display = 'none';
+    }
+}
+
+function cerrarSesion() {
+    fetch('http://127.0.0.1:3000/logout', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Limpiar el localStorage al cerrar sesión
+            localStorage.removeItem('adminData');
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = "login.html";
+        } else {
+            alert('Error al cerrar sesión. Inténtalo de nuevo.');
+        }
+    })
+    .catch(error => {
+        console.error('Error al cerrar sesión:', error);
+    });
+}
+
+function validatePrice(price) {
+    const regex = /^\d+(\.\d{0,2})?$/;
+    return regex.test(price);
+}
+
+function validateForm() {
+    const productImage = document.getElementById('productImage');
+    const productPrice = document.getElementById('productPrice');
+    const productOffer = document.getElementById('productOffer');
+    const productStock = document.getElementById('productStock'); // Obtener el elemento del stock    
+
+    // Validación de la imagen del producto
+    if (!productImage.value) {
+        alert('Por favor, carga una imagen para el producto.');
+        return false;
+    }
+
+    // Validación del precio
+    if (!validatePrice(productPrice.value)) {
+        alert('Por favor, ingresa un precio válido. Ejemplo: 50.55');
+        return false;
+    }
+
+    // Validación de la oferta
+    const offerValue = parseFloat(productOffer.value);
+    if (offerValue < 0 || offerValue > 100) {
+        alert('La oferta debe estar entre 0 y 100.');
+        return false;
+    }
+
+    // Validación del stock
+    if (parseInt(productStock.value) < 0) {
+        alert('El stock del producto no puede ser negativo.');
+        return false;
+    }
+
+    return true;
+}
+
+document.getElementById('productForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
+    const formData = new FormData(this);
+
+    fetch('http://127.0.0.1:3000/upload-product', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Producto subido con éxito');
+            limpiarFormulario();
+        } else {
+            alert('Error al subir el producto: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al subir el producto:', error);
+    });
+});
+
+// Función para mostrar una vista previa de la imagen del producto
+document.getElementById('productImage').addEventListener('change', function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const previewImage = document.getElementById('previewImage');
+        previewImage.src = e.target.result;
+        previewImage.style.display = 'block';
+    }
+
+    reader.readAsDataURL(file);
+});
+
+// Función para mostrar una vista previa del banner
+document.getElementById('bannerImage').addEventListener('change', function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const previewBannerImage = document.getElementById('previewBannerImage');
+        previewBannerImage.src = e.target.result;
+        previewBannerImage.style.display = 'block';
+    }
+
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('bannerForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('http://127.0.0.1:3000/upload-banner', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Banner subido con éxito');
+            limpiarFormularioBanner();
+        } else {
+            alert('Error al subir el banner: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al subir el banner:', error);
+    });
+});
+
+function limpiarFormularioBanner() {
+    document.getElementById("bannerForm").reset();
+
+    const previewBannerImage = document.getElementById('previewBannerImage');
+    if (previewBannerImage) {
+        previewBannerImage.style.display = 'none';
+    }
+}
+
+
+    
+    </script>
+    
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

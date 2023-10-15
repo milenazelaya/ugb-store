@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
@@ -93,12 +94,7 @@
             margin-right: -50px; /* Ajusta este valor según tus necesidades */
         }
 
-        #submitBtn1 {
-         position: absolute;
-            top:579px;    /* Mover hacia abajo desde la parte superior del contenedor */
-            right: 20px;  /* Mover hacia la izquierda desde el lado derecho del contenedor */
-            /* Si deseas moverlo desde el lado izquierdo o desde la parte inferior, puedes usar 'left' y 'bottom' respectivamente */
-        }
+       
             
 
 
@@ -126,12 +122,7 @@
                     </li>
                 </ul>
                 
-                <div class="ms-auto mb-2"><a href="registro.html" class="btn btn-outline-light">Registrarse</a>
-                    
-                    <a href="login.html" class="btn btn-outline-light">Iniciar Sesión</a>
-                </div>
-            </div>
-        </div>
+                
     </nav>
     
     <div class="container mt-5">
@@ -171,10 +162,13 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" class="form-control" name="password" id="password" required>
-                    <div class="invalid-feedback" id="passwordFeedback">
-                        La contraseña es demasiado débil.
+                    <div class="invalid-feedback">
+                        La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial (como !@#$%^&*_.).
                     </div>
+                    
                 </div>
+                
+                
                 
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
@@ -188,11 +182,9 @@
                
 
                 
-                <div class="mb-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <a href="login.html" id="submitBtn1" class="btn btn-transparent">Iniciar Sesión</a>
                     <button type="submit" id="submitBtn" class="btn btn-transparent">Registrar</button>
-                </div>
-                <div class="mb-3">
-                    <a href="login.html" id="submitBtn1" class="btn btn-transparent ml-2">Iniciar Sesión</a>
                 </div>
                 
                 <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
@@ -210,56 +202,54 @@
             const form = document.getElementById('studentRegistrationForm');
             const submitBtn = document.getElementById('submitBtn');
             const errorMessage = document.getElementById('errorMessage');
-    
-            function isPasswordStrong(password) {
-                // La contraseña debe tener al menos 8 caracteres, 
-                // incluir una letra minúscula, una letra mayúscula, un número y un carácter especial.
-                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                return regex.test(password);
-            }
-    
+        
             function validateStudentCodeWithEmail(email, studentCode) {
                 const emailPrefix = email.split('@')[0].toUpperCase();
                 return emailPrefix === studentCode;
             }
-    
+
+            function validatePassword(password) {
+    // Se añade el guion bajo (_) en la parte de caracteres especiales.
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#\._])[A-Za-z\d@$!%*?&#\._]{8,}$/;
+    return regex.test(password);
+}
+
+
+        
             submitBtn.addEventListener('click', function(event) {
                 event.preventDefault();
-    
+        
                 const email = document.getElementById('email').value;
                 const studentCode = document.getElementById('studentCode').value;
-    
+        
                 if (!validateStudentCodeWithEmail(email, studentCode)) {
                     errorMessage.textContent = "El correo y el código de estudiante deben coincidir.";
                     errorMessage.classList.remove('d-none');
                     return;
                 }
-    
+        
                 const password = document.getElementById('password').value;
-    
-                // Verifica si la contraseña es fuerte
-                if (!isPasswordStrong(password)) {
-                    document.getElementById('password').classList.add('is-invalid');
-                    document.getElementById('passwordFeedback').textContent = 'La contraseña debe tener al menos 8 caracteres, incluir una letra minúscula, una letra mayúscula, un número y un carácter especial.';
-                    return;
-                } else {
-                    document.getElementById('password').classList.remove('is-invalid');
-                }
-    
                 const confirmPassword = document.getElementById('confirmPassword').value;
-    
+        
                 if (password !== confirmPassword) {
                     document.getElementById('confirmPassword').classList.add('is-invalid');
                     return;
                 } else {
                     document.getElementById('confirmPassword').classList.remove('is-invalid');
                 }
-    
+        
                 if (!form.checkValidity()) {
                     form.classList.add('was-validated');
                     return;
                 }
-    
+                
+                if (!validatePassword(password)) {
+    errorMessage.textContent = "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial (!@#$%^&*).";
+    errorMessage.classList.remove('d-none');
+    return;
+}
+
+
                 $.ajax({
                     type: "POST",
                     url: form.action,
