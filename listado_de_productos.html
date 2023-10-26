@@ -179,6 +179,14 @@
     text-align: center;
 }
 
+.table-responsive {
+    max-height: 500px; /* Ajusta este valor según tus necesidades */
+    overflow-y: auto;
+}
+
+.preserve-whitespace {
+    white-space: pre-line;
+}
 
     </style>
 </head>
@@ -205,6 +213,21 @@
                         <a class="nav-link" href="listado_de_productos.html">Ver Productos y Banners</a>
                     </li>
                 </ul>
+
+               
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservas.html">Reservas</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="comentario.html">Comentario de productos</a>
+                    </li>
+                </ul>
+
                 <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -243,48 +266,51 @@
                         <th>Descripción</th>
                         <th>Precio</th>
                         <th>Oferta</th>
+                        <th>Popular</th> <!-- Nueva columna para indicar si es popular -->
                         <th>Disponibilidad</th>
                         <th>Stock</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody>                  
                     <tr v-for="product in filteredProducts">
                         <td>
-                            <img :src="product.imageUrl" alt="Imagen del producto" class="img-fluid" style="max-width: 200px;"> <!-- Añadido clase img-fluid y estilo max-width -->
+                            <img :src="product.imageUrl" alt="Imagen del producto" class="img-fluid" style="max-width: 200px;">
                             <input v-if="product.isEditing" type="file" @change="event => updateImage(event, product)" title="Seleccionar imagen del producto" placeholder="Seleccionar imagen">
                         </td>
                         <td>
                             <span v-if="!product.isEditing">{{ product.name }}</span>
-
                             <input v-if="product.isEditing" v-model="product.name" type="text" title="Editar nombre del producto" placeholder="Ingresar nombre">
-
                         </td>
-                        
                         <td>
                             <span v-if="!product.isEditing">{{ product.category }}</span>
                             <select v-if="product.isEditing" v-model="product.category" title="Seleccionar categoría del producto">
-                                <option value="Tecnología">Tecnología</option>
-                                <option value="Diseño">Diseño</option>
-                                <option value="Leyes">Leyes</option>
-                                <option value="Accesorios para computadora y mochilas">Accesorios para computadora y mochilas</option>
-                                <option value="Promocionales">Promocionales</option>
-                                <option value="Enfermería">Enfermería</option>
-                                <option value="Utilería">Utilería</option>
+                                <option v-for="category in categories" :value="category">{{ category }}</option>
                             </select>
+                            
                         </td>
                         <td>
-                            <span v-if="!product.isEditing">{{ product.description }}</span>
-                            <input v-if="product.isEditing" v-model="product.description" type="text" title="Editar descripción del producto" placeholder="Ingresar descripción">
+                            <span v-if="!product.isEditing" class="preserve-whitespace">{{ product.description }}</span>
+
+                            <textarea v-if="product.isEditing" v-model="product.description" title="Editar descripción del producto" placeholder="Ingresar descripción" rows="3"></textarea>
                         </td>
+                        
                         <td>
                             <span v-if="!product.isEditing">{{ product.price }}</span>
                             <input v-if="product.isEditing" v-model="product.price" type="number" title="Editar precio del producto" placeholder="Ingresar precio">
                         </td>
                         <td>
-                            <span v-if="!product.isEditing">{{ product.offer }}</span>
+                            <span v-if="!product.isEditing">{{ product.offer > 0 ? product.offer + '%' : 'No tiene oferta' }}</span>
                             <input v-if="product.isEditing" v-model="product.offer" type="number" title="Editar oferta del producto" placeholder="Ingresar oferta">
                         </td>
+                        <td>
+                            <span v-if="!product.isEditing">{{ product.popular ? 'Sí' : 'No' }}</span>
+                            <select v-if="product.isEditing" v-model="product.popularString" title="Indicar si el producto es popular">
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                        </td>
+                        
                         <td>
                             <span v-if="!product.isEditing">{{ product.availability }}</span>
                             <select v-if="product.isEditing" v-model="product.availability" title="Seleccionar disponibilidad del producto">
@@ -296,6 +322,7 @@
                             <span v-if="!product.isEditing">{{ product.stock }}</span>
                             <input v-if="product.isEditing" v-model="product.stock" type="number" title="Editar stock del producto" placeholder="Ingresar stock">
                         </td>
+                        
                         <td>
                             <button class="btn btn-danger btn-sm" @click="deleteProduct(product._id)">Eliminar</button>
                             <button class="btn btn-modificar btn-sm" @click="toggleEdit(product)">Modificar</button>
@@ -304,6 +331,7 @@
                         </td>
                     </tr>
                 </tbody>
+                
             </table>
         </div> <!-- Fin del contenedor responsivo -->
     </div>

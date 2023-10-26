@@ -194,6 +194,41 @@
         </div>
     </div>
 
+
+    <!-- Formulario de Registro para Docentes -->
+    <div class="registration-box mt-5">
+        <h2 class="text-center">Registro de Docentes</h2>
+        <form id="teacherRegistrationForm" action="http://127.0.0.1:3000/registerTeacher" method="POST">
+            <div class="mb-3">
+                <label for="teacherFirstName" class="form-label">Nombre</label>
+                <input type="text" class="form-control" name="firstName" id="teacherFirstName" required>
+            </div>
+            <div class="mb-3">
+                <label for="teacherLastName" class="form-label">Apellido</label>
+                <input type="text" class="form-control" name="lastName" id="teacherLastName" required>
+            </div>
+            <div class="mb-3">
+                <label for="teacherEmail" class="form-label">Correo Institucional</label>
+                <input type="email" class="form-control" name="email" id="teacherEmail" pattern="^[a-zA-Z0-9._%+@-]+@ugb\.edu\.sv$" required>
+
+            </div>
+            <div class="mb-3">
+                <label for="teacherPassword" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="password" id="teacherPassword" required>
+            </div>
+            <div class="mb-3">
+                <label for="teacherConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                <input type="password" class="form-control" name="confirmPassword" id="teacherConfirmPassword" required>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <a href="login.html" class="btn btn-transparent">Iniciar Sesión</a>
+                <button type="submit" class="btn btn-transparent">Registrar</button>
+            </div>
+            <div id="teacherErrorMessage" class="alert alert-danger d-none" role="alert"></div>
+        </form>
+    </div>
+</div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -276,6 +311,57 @@
                 });
             });
         });
+
+
+        // Código JS para el formulario de docentes
+    $(document).ready(function() {
+        const teacherForm = document.getElementById('teacherRegistrationForm');
+        const teacherErrorMessage = document.getElementById('teacherErrorMessage');
+
+        teacherForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const teacherPassword = document.getElementById('teacherPassword').value;
+            const teacherConfirmPassword = document.getElementById('teacherConfirmPassword').value;
+
+            if (teacherPassword !== teacherConfirmPassword) {
+                document.getElementById('teacherConfirmPassword').classList.add('is-invalid');
+                return;
+            } else {
+                document.getElementById('teacherConfirmPassword').classList.remove('is-invalid');
+            }
+
+            if (!teacherForm.checkValidity()) {
+                teacherForm.classList.add('was-validated');
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: teacherForm.action,
+                data: $(teacherForm).serialize(),
+                dataType: "json",
+                withCredentials: true,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .done(function(response) {
+                if (response.success) {
+                    window.location.href = '/login.html';
+                } else {
+                    teacherErrorMessage.textContent = response.message || 'Error desconocido.';
+                    teacherErrorMessage.classList.remove('d-none');
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                const responseMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : 'Error al registrar. Inténtalo de nuevo.';
+                teacherErrorMessage.textContent = responseMessage;
+                teacherErrorMessage.classList.remove('d-none');
+                console.error("Error en la solicitud:", jqXHR, textStatus, errorThrown);
+            });
+        });
+    });
     </script>
     
         

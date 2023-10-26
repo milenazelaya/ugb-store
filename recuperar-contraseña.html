@@ -105,7 +105,11 @@
             <form id="passwordRecoveryForm">
                 <div class="mb-3">
                     <label for="recoveryEmail" class="form-label">Correo Institucional</label>
-                    <input type="email" class="form-control" name="recoveryEmail" id="recoveryEmail" pattern="^(usis|umed|uing|uadm|ucom|usel|usep|usjs|usss|usly|usas|usts)[0-9]{6}@ugb\.edu\.sv$" required>
+                    <input type="email" class="form-control" name="recoveryEmail" id="recoveryEmail" pattern="^([a-zA-Z0-9._%+.]+|(usis|umed|uing|uadm|ucom|usel|usep|usjs|usss|usly|usas|usts|doc)[0-9]{6})@ugb\.edu\.sv$" required>
+
+
+
+
                     <div class="invalid-feedback">
                         Por favor, ingresa un correo válido.
                     </div>

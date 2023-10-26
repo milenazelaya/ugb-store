@@ -179,16 +179,19 @@
                 const result = await response.json();
         
                 if (response.status === 200) {
-                    localStorage.setItem('isLoggedIn', 'true'); // Guardar el indicador de inicio de sesión
-                    if (result.isAdmin) {
-                        window.location.href = "inicioadmin.html";
-                    } else {
-                        window.location.href = "iniciousers.html";
-                    }
+                localStorage.setItem('isLoggedIn', 'true'); // Guardar el indicador de inicio de sesión
+                if (result.isAdmin) {
+                    window.location.href = "inicioadmin.html";
+                } else if (result.isTeacher) {
+                    window.location.href = "iniciousers.html"; // Redirige a los docentes aquí
                 } else {
+                    window.location.href = "iniciousers.html"; // Supongo que esto es para estudiantes
+                }
+            } else {
                     errorMessageElement.textContent = result.message;
                     errorMessageElement.classList.remove('d-none');
                 }
+
             } catch (error) {
                 console.error("Error al enviar el formulario:", error);
                 errorMessageElement.textContent = 'Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.';

@@ -156,7 +156,6 @@
                         <a class="nav-link" href="comentario.html">Comentario de productos</a>
                     </li>
                 </ul>
-
                 <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -172,24 +171,12 @@
     </nav>
     
 
-    <div class="table-responsive"> <!-- Envuelve la tabla en un div con la clase table-responsive -->
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Correo</th>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Hora de Recogida</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="reservationsList">
-                <!-- Las reservas se cargarán aquí desde el servidor -->
-            </tbody>
-        </table>
+    
+    <div class="container mt-5">
+        <h2>Comentarios de Productos</h2>
+        <div id="commentsSection"></div>
     </div>
-      
-
+    
 
 
 <script>
@@ -216,7 +203,9 @@
             }
         });
 
-       function cerrarSesion() {
+        fetchComments();
+
+        function cerrarSesion() {
     fetch('http://127.0.0.1:3000/logout', {
         method: 'GET',
         credentials: 'include'
@@ -242,73 +231,38 @@
     });
 }
 
-//reservas
-function loadReservations() {
-    fetch('http://127.0.0.1:3000/reservations', {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        const reservationsList = document.getElementById('reservationsList');
-        reservationsList.innerHTML = ''; // Limpiar la lista actual
-
-        data.forEach(reservation => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${reservation.name}</td>
-        <td>${reservation.email}</td>
-        <td>${reservation.product}</td>
-        <td>${new Date(reservation.pickupTime).toLocaleString()}</td>
-        <td>
-            <button class="btn btn-danger" onclick="deleteReservation('${reservation._id}')">Eliminar</button>
-        </td>
-    `;
-    reservationsList.appendChild(row);
-});
-
-    })
-    .catch(error => {
-        console.error('Error al cargar las reservas:', error);
+function fetchComments() {
+        fetch('http://127.0.0.1:3000/get-comments', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(comments => {
+    const commentsSection = document.getElementById('commentsSection');
+    let commentsHTML = '';
+    comments.forEach(comment => {
+        commentsHTML += `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">${comment.userName || 'Usuario desconocido'}</h5> <!-- Aquí asumí que tienes un campo userName en el comentario, si no es así, corrígelo. -->
+                    <p class="card-text">${comment.text}</p>
+                    <p class="card-text"><small class="text-muted">Producto: ${comment.product ? comment.product.name : 'Desconocido'}</small></p>
+                </div>
+            </div>
+        `;
     });
-}
-
-function deleteReservation(id) {
-    fetch(`http://127.0.0.1:3000/reservations/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            alert('Reserva eliminada con éxito.');
-            loadReservations(); // Recargar las reservas después de eliminar
-        } else {
-            alert('Error al eliminar la reserva. Inténtalo de nuevo.');
-        }
-    })
-    .catch(error => {
-        console.error('Error al eliminar la reserva:', error);
-    });
-}
-
-
-// Llamar a la función cuando se cargue la página
-document.addEventListener('DOMContentLoaded', function () {
-    loadReservations();
-    // ... el resto de tu código ...
-});
-
+    commentsSection.innerHTML = commentsHTML;
+})
+        .catch(error => {
+            console.error('Error al obtener los comentarios:', error);
+        });
+    }
+    
     </script>
     
     

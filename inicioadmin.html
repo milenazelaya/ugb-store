@@ -149,6 +149,19 @@
                         <a class="nav-link" href="listado_de_productos.html">Ver Productos y Banners</a>
                     </li>
                 </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservas.html">Reservas</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="comentario.html">Comentario de productos</a>
+                    </li>
+                </ul>
+
                 <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -239,7 +252,11 @@
                             <option value="no disponible">No Disponible</option>
                         </select>
                     </div>
-    
+                            <div class="mb-3">
+            <input type="checkbox" class="form-check-input" id="productPopular" name="productPopular">
+            <label class="form-check-label" for="productPopular">Marcar como popular</label>
+        </div>
+            
                     <!-- Botones -->
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Enviar</button>
@@ -282,7 +299,6 @@
 
 
 
-    
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -352,7 +368,7 @@ function validateForm() {
     const productImage = document.getElementById('productImage');
     const productPrice = document.getElementById('productPrice');
     const productOffer = document.getElementById('productOffer');
-    const productStock = document.getElementById('productStock'); // Obtener el elemento del stock    
+    const productStock = document.getElementById('productStock');
 
     // Validación de la imagen del producto
     if (!productImage.value) {
@@ -368,7 +384,9 @@ function validateForm() {
 
     // Validación de la oferta
     const offerValue = parseFloat(productOffer.value);
-    if (offerValue < 0 || offerValue > 100) {
+    if (isNaN(offerValue)) {
+        productOffer.value = "sin oferta";
+    } else if (offerValue < 0 || offerValue > 100) {
         alert('La oferta debe estar entre 0 y 100.');
         return false;
     }
@@ -389,6 +407,10 @@ document.getElementById('productForm').addEventListener('submit', function(event
         return;
     }
     const formData = new FormData(this);
+    
+    // Añade el valor del checkbox "popular" a formData
+    const productPopular = document.getElementById('productPopular');
+    formData.append('productPopular', productPopular.checked);
 
     fetch('http://127.0.0.1:3000/upload-product', {
         method: 'POST',
@@ -470,6 +492,13 @@ function limpiarFormularioBanner() {
     }
 }
 
+function convertNewlineToBreak(text) {
+    return text.replace(/\n/g, '<br>');
+}
+
+let description = document.getElementById('productDescription').value;
+description = convertNewlineToBreak(description);
+// Ahora puedes usar 'description' para mostrarlo en la página web.
 
     
     </script>

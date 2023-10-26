@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
+<head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     <style>
         .navbar-brand {
             font-weight: 700;
@@ -58,6 +60,77 @@
                 margin-bottom: 10px;
             }
         }
+
+        .category-bar {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .product-card img {
+    border-radius: 15px 15px 0 0;
+    height: 300px;
+    width: 100%;
+    object-fit: contain; /* Cambiado de cover a contain */
+    transition: transform 0.2s;
+    margin-bottom: 150px; /* Añadido margen inferior */
+}
+
+    .product-card .card-body {
+            padding: 15px;
+            background-color: #f5f5f5;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            max-height: 100%;
+            transition: max-height 0.2s ease-in-out;
+        }
+
+        .product-card .product-description,
+        .product-card .product-available {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .product-card:hover .product-description,
+        .product-card:hover .product-available {
+            display: block;
+            opacity: 1;
+        }
+
+        .product-card .product-description-title,
+        .product-card .product-available-title {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .product-card:hover .card-body {
+            max-height: 500px; /* Ajusta según sea necesario */
+        }
+
+        .product-card .product-description {
+        max-height: 100px; /* Establece una altura máxima */
+        overflow-y: auto; /* Añade una barra de desplazamiento si es necesario */
+        margin-bottom: 10px; /* Añade un margen en la parte inferior */
+    }
+
+    .product-card .product-description::-webkit-scrollbar {
+        width: 5px; /* Ajusta el ancho de la barra de desplazamiento */
+    }
+
+    .product-card .product-description::-webkit-scrollbar-thumb {
+        background-color: #333; /* Ajusta el color de la barra de desplazamiento */
+    }
+
+    .preserve-whitespace {
+    white-space: pre-line;
+}
+
     </style>
 </head>
 <body>
@@ -79,15 +152,23 @@
                 <form class="d-flex me-3 mb-3 mt-3">
                     <div class="me-2">
                         <select class="form-select" aria-label="Filter">
-                            <option selected>All</option>
-                            <option value="1">Category 1</option>
-                            <option value="2">Category 2</option>
-                            <option value="3">Category 3</option>
+                            <option selected>Catalogo</option>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Diseño">Diseño</option>
+                            <option value="Leyes">Leyes</option>
+                            <option value="Accesorios para computadora y mochilas">Accesorios para computadora y mochilas</option>
+                            <option value="Promocionales">Promocionales</option>
+                            <option value="Enfermería">Enfermería</option>
+                            <option value="Utilería">Utilería</option>
                         </select>
+                        
                     </div>
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
+                    <button class="btn btn-outline-light" type="button" onclick="filterProducts()">Search</button>
+                    
                 </form>
+                <button class="btn btn-outline-secondary" type="button" id="clearSearch">Limpiar</button>
+
                 <div class="ms-auto mb-2">
                     <a href="registro.html" class="btn btn-outline-light">Registrarse</a>
                     <a href="login.html" class="btn btn-outline-light">Iniciar Sesión</a>
@@ -96,8 +177,234 @@
         </div>
     </nav>
 
-    <!-- Aquí va el resto del contenido de tu página -->
+    <div class="container mt-5" id="search-results-section" style="display: none;">
+        <div class="category-bar">Resultados de Búsqueda</div>
+        <div id="search-results" class="row">
+            <!-- Los resultados de la búsqueda se cargarán aquí -->
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <!-- Sección de Banners -->
+        <div id="bannersCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <!-- Los banners se cargarán aquí como elementos del carrusel -->
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannersCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#bannersCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        
+        
+        
+        <div class="container mt-5">
+            <div class="category-bar">Productos Populares</div>
+            <div id="popular-products" class="row">
+                <!-- Los productos populares se cargarán aquí -->
+            </div>
+        </div>
+    
+
+        <div class="container mt-5">
+            <div class="category-bar">Productos en Oferta</div>
+            <div id="offer-products" class="row">
+                <!-- Los productos en oferta se cargarán aquí -->
+            </div>
+        </div>
+        
+        
+        
+<div class="d-flex justify-content-end">
+    <!-- Botón de Facebook -->
+    <a href="https://www.facebook.com/ugbstoreoficial" target="_blank" class="btn btn-primary me-2">
+        <i class="fab fa-facebook-f"></i> Visitar UGB Store en Facebook
+    </a>
+
+    <!-- Botón de WhatsApp -->
+    <a href="https://api.whatsapp.com/send?phone=%2B50326456590&data=ARClRHo9GnU0P6RRvWjJ5ggb7tb67yi3dP3PehMqYSwNUNOYTGoNKXjBmaK3notyOWjsQmcllr0WX_Is6topJ-QtqdffNKomngS9JCDUt2FxtVfAZ3Tg-8ZnqcdG7BbrAEllP4wP_J4wqM95Ijph4H3Amg&source=FB_Page&app=facebook&entry_point=page_cta&fbclid=IwAR0MN3KKUUAvpHryc93Au4ZliyxizL10Gbr9zGf_wE2PJHPf0cGxccSO7mg" target="_blank" class="btn btn-success">
+        <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+    </a>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+         // Cargar banners
+         async function loadBanners() {
+            try {
+                const response = await fetch('http://127.0.0.1:3000/banners');
+                const banners = await response.json();
+                const bannersCarousel = document.querySelector('.carousel-inner');
+                banners.forEach((banner, index) => {
+                    const bannerElement = document.createElement('div');
+                    bannerElement.className = index === 0 ? 'carousel-item active' : 'carousel-item';
+                    bannerElement.innerHTML = `<img src="${banner.imageUrl}" alt="${banner.description}" class="d-block w-100">`;
+                    bannersCarousel.appendChild(bannerElement);
+                });
+            } catch (error) {
+                console.error("Error al cargar banners:", error);
+            }
+        }
+
+    //productos papulares
+    async function loadPopularProducts() {
+            try {
+                const response = await fetch('http://127.0.0.1:3000/popular-products');
+                const popularProducts = await response.json();
+                const popularProductsContainer = document.getElementById('popular-products');
+                popularProductsContainer.innerHTML = '';
+
+                popularProducts.forEach(product => {
+                    const productCard = `
+    <div class="col-md-4 mb-4">
+        <div class="card product-card">
+            <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
+            <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text"><strong>$${product.price}</strong></p>
+                <p class="product-description preserve-whitespace">
+                    <span class="product-description-title">Descripción:</span> ${product.description}
+                </p>
+                <p class="product-available">
+                    <span class="product-available-title">Disponibles:</span> ${product.stock}
+                </p>
+            </div>
+        </div>
+    </div>
+`;
+
+    popularProductsContainer.innerHTML += productCard;
+});
+            } catch (error) {
+                console.error("Error al cargar productos populares:", error);
+                const popularProductsContainer = document.getElementById('popular-products');
+                popularProductsContainer.innerHTML = '<p>Hubo un error al cargar los productos populares. Por favor, inténtalo de nuevo más tarde.</p>';
+            }
+        }
+
+
+
+//ofertas de las productos
+async function loadOfferProducts() {
+    try {
+        const response = await fetch('http://127.0.0.1:3000/offer-products');
+        const offerProducts = await response.json();
+        const offerProductsContainer = document.getElementById('offer-products');
+        offerProductsContainer.innerHTML = '';
+
+        offerProducts.forEach(product => {
+            const productCard = `
+    <div class="col-md-4 mb-4">
+        <div class="card product-card">
+            <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
+            <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text"><strong>$${product.price}</strong></p>
+                <p class="product-description preserve-whitespace">
+                    <span class="product-description-title">Descripción:</span> ${product.description}
+                </p>
+                <p class="product-available">
+                    <span class="product-available-title">Disponibles:</span> ${product.stock}
+                </p>
+            </div>
+        </div>
+    </div>
+`;
+
+    offerProductsContainer.innerHTML += productCard;
+        });
+    } catch (error) {
+        console.error("Error al cargar productos en oferta:", error);
+        const offerProductsContainer = document.getElementById('offer-products');
+        offerProductsContainer.innerHTML = '<p>Hubo un error al cargar los productos en oferta. Por favor, inténtalo de nuevo más tarde.</p>';
+    }
+}
+
+//filters
+// Filtrar productos
+async function filterProducts() {
+    const searchTerm = document.querySelector('.form-control').value;
+    const categorySelect = document.querySelector('.form-select');
+    const selectedCategory = categorySelect.options[categorySelect.selectedIndex].value; // Obtener la categoría seleccionada de esta manera
+    const productsContainer = document.getElementById('search-results');
+    productsContainer.innerHTML = '';
+
+    let endpoint = `http://127.0.0.1:3000/products?search=${searchTerm}`;
+
+    if (selectedCategory && selectedCategory !== "Categoria") {
+        endpoint += `&category=${encodeURIComponent(selectedCategory)}`; // Añadir el filtro de categoría al endpoint y asegurarse de codificarlo para URL
+    }
+
+    console.log("Endpoint con filtros:", endpoint); // Añadido para depuración
+
+    try {
+        const response = await fetch(endpoint);
+        const products = await response.json();
+
+        
+
+                if (products.length === 0) {
+                    productsContainer.innerHTML = '<p class="col-12 text-center">Sin resultados</p>';
+                } else {
+                    products.forEach(product => {
+                        const productCard = `
+                            <div class="col-md-4 mb-4">
+                                <div class="card product-card">
+                                    <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${product.name}</h5>
+                                        <p class="card-text"><strong>$${product.price}</strong></p>
+                                        <p class="product-description preserve-whitespace">
+                                            <span class="product-description-title">Descripción:</span> ${product.description}
+                                        </p>
+                                        <p class="product-available">
+                                            <span class="product-available-title">Disponibles:</span> ${product.stock}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        productsContainer.innerHTML += productCard;
+                    });
+                }
+
+                // Mostrar la sección de resultados de búsqueda
+                document.getElementById('search-results-section').style.display = 'block';
+
+            } catch (error) {
+                console.error("Error al filtrar productos:", error);
+            }
+        }
+
+
+//limpiar busqueda
+document.getElementById('clearSearch').addEventListener('click', function() {
+            // Restablecer los campos de búsqueda
+            document.querySelector('.form-control').value = '';
+            document.querySelector('.form-select').selectedIndex = 0;
+
+            // Ocultar la sección de resultados de búsqueda
+            document.getElementById('search-results-section').style.display = 'none';
+
+            // Volver a cargar los productos originales
+            loadPopularProducts();
+            loadOfferProducts();
+        });
+
+
+
+    // Llamar a las funciones al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBanners();
+        loadPopularProducts();
+        loadOfferProducts(); // Llama a la función aquí
+    });
+    </script>
 </body>
 </html>

@@ -2,13 +2,12 @@ new Vue({
     el: '#app',
     data: {
         products: [],
-        
         selectedCategory: '',
         filteredProducts: [],
         originalProducts: {},
-        
         serverBaseUrl: 'http://127.0.0.1:3000',
-        errorMessage: ''
+        errorMessage: '',
+        categories: ['Tecnología', 'Diseño', 'Leyes', 'Accesorios para computadora y mochilas', 'Promocionales', 'Enfermería', 'Utilería'],
     },
     methods: {
         fetchProducts: function() {
@@ -16,6 +15,7 @@ new Vue({
                 .then(response => {
                     this.products = response.data.map(product => {
                         product.isEditing = false;
+                        product.popularString = product.popular ? "true" : "false";
                         return product;
                     });
                     this.filteredProducts = this.products;
@@ -57,13 +57,23 @@ new Vue({
             product.isEditing = !product.isEditing;
             if (product.isEditing) {
                 this.originalProducts[product._id] = { ...product };
+                this.$nextTick(() => {
+                    document.querySelector('.table-responsive').style.overflowX = 'scroll';
+                });
             } else {
                 Object.assign(product, this.originalProducts[product._id]);
+                this.$nextTick(() => {
+                    document.querySelector('.table-responsive').style.overflowX = 'auto';
+                });
             }
         },
+        
         saveChanges: function(product) {
+            product.popular = product.popularString === "true"; // Convertir a booleano
             const updatedProduct = { ...product };
             delete updatedProduct.isEditing;
+            delete updatedProduct.popularString; // Eliminar la propiedad popularString
+
 
             axios.put(`http://127.0.0.1:3000/products/${product._id}`, product)
                 .then(response => {
