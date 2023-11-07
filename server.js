@@ -165,15 +165,7 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-//reservas
-const reservationSchema = new mongoose.Schema({
-    name: String,
-    email: String,
-    product: String,
-    pickupTime: Date
-});
 
-const Reservation = mongoose.model('Reservation', reservationSchema);
 
 
 // Configuración de Multer con ruta absoluta
@@ -670,7 +662,6 @@ app.delete('/reservations/:id', async (req, res) => {
     try {
         await Reservation.findByIdAndDelete(reservationId);
         res.status(200).json({ success: true, message: 'Reserva eliminada con éxito.' });
-        
     } catch (err) {
         console.error("Error al eliminar la reserva:", err);
         res.status(500).json({ success: false, message: 'Error al eliminar la reserva.' });
@@ -711,7 +702,6 @@ app.post('/add-comment', async (req, res) => {
             userName: userName  // Aquí deberías obtener el nombre real del usuario
         });
         
-
         await newComment.save();
         res.json({ success: true, message: 'Comentario guardado con éxito' });
     } catch (error) {

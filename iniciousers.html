@@ -554,7 +554,6 @@ async function filterProducts() {
     endpoint += `&category=${encodeURIComponent(selectedCategory)}`;
 }
 
-
     console.log("Endpoint con filtros:", endpoint); // Añadido para depuración
 
     try {
@@ -695,10 +694,6 @@ document.getElementById('reservationModal').addEventListener('show.bs.modal', fu
                     });
             });
 
-
-            
-
-        
             // Función para mostrar el modal de confirmación
             function showConfirmationModal() {
     var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
