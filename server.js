@@ -244,7 +244,6 @@ app.post('/register', async (req, res) => {
         return res.status(400).json({ success: false, message: 'El correo y el código de estudiante deben coincidir.' });
     }
 
-
     if (!req.body.password) {
         console.error("Contraseña no proporcionada en la solicitud.");
         return res.status(400).json({ success: false, message: 'Contraseña no proporcionada.' });
