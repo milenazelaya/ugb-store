@@ -114,7 +114,13 @@
 }
 
 
-       
+.comment-product-image {
+    max-width: 150px; /* Ajusta este valor según tus preferencias */
+    height: auto;
+    display: block;
+    margin: 0 auto 15px; /* Centra la imagen y añade un margen inferior */
+}
+      
 
     </style>
 </head>
@@ -141,9 +147,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="listado_de_productos.html">Ver Productos y Banners</a>
+                        <a class="nav-link" href="listado.html">Listado de productos</a>
                     </li>
                 </ul>
+
 
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -156,6 +163,15 @@
                         <a class="nav-link" href="comentario.html">Comentario de productos</a>
                     </li>
                 </ul>
+
+                 
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="estadisticas.html">Estadisticas</a>
+                    </li>
+                </ul>
+
+
                 <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -232,36 +248,39 @@
 }
 
 function fetchComments() {
-        fetch('http://127.0.0.1:3000/get-comments', {
-            method: 'GET',
-            credentials: 'include'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(comments => {
-    const commentsSection = document.getElementById('commentsSection');
-    let commentsHTML = '';
-    comments.forEach(comment => {
-        commentsHTML += `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">${comment.userName || 'Usuario desconocido'}</h5> <!-- Aquí asumí que tienes un campo userName en el comentario, si no es así, corrígelo. -->
-                    <p class="card-text">${comment.text}</p>
-                    <p class="card-text"><small class="text-muted">Producto: ${comment.product ? comment.product.name : 'Desconocido'}</small></p>
+    fetch('http://127.0.0.1:3000/get-comments', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(comments => {
+        const commentsSection = document.getElementById('commentsSection');
+        let commentsHTML = '';
+        comments.forEach(comment => {
+            commentsHTML += `
+                <div class="card mb-3">
+                    <img src="${comment.productImage}" class="card-img-top comment-product-image" alt="${comment.product ? comment.product.name : 'Producto desconocido'}">
+
+                    <div class="card-body">
+                        <h5 class="card-title">${comment.userName || 'Usuario desconocido'}</h5>
+                        <p class="card-text">${comment.text}</p>
+                        <p class="card-text"><small class="text-muted">Producto: ${comment.product ? comment.product.name : 'Desconocido'}</small></p>
+                    </div>
                 </div>
-            </div>
-        `;
-    });
-    commentsSection.innerHTML = commentsHTML;
-})
-        .catch(error => {
-            console.error('Error al obtener los comentarios:', error);
+            `;
         });
-    }
+        commentsSection.innerHTML = commentsHTML;
+    })
+    .catch(error => {
+        console.error('Error al obtener los comentarios:', error);
+    });
+}
+
     
     </script>
     

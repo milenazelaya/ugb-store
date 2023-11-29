@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .navbar-brand .ugb, .navbar-brand .store {
+            position: relative;
+        }
+
+        .navbar-brand .ugb::after, .navbar-brand .store::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+
+        .navbar-brand .ugb {
+            color: red;
+        }
+
+        .navbar-brand .store {
+            color: white;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+        }
+
+        .navbar-nav .nav-link.active {
+            font-weight: bold;
+        }
+
+        .btn-outline-light {
+            margin-left: 5px;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                flex-direction: column;
+            }
+
+            .d-flex {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .form-select, .form-control {
+                margin-bottom: 10px;
+            }
+        }
+
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 600px;
+        }
+
+        #loadingScreen {
+    display: none; /* Estará oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#loadingScreen i {
+    font-size: 50px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+#loadingScreen p {
+    color: white;
+    font-size: 20px;
+}
+
+#previewImage, #previewPromoImage {
+            max-width: 500px;
+            display: none;
+            margin-top: 10px;
+        }
+        #myChartContainer {
+    margin-top: 20px; /* Ajusta este valor según la cantidad de espacio que quieras */
+}
+
+#myChart {
+    margin-top: 20px; /* Ajusta este valor según la cantidad de espacio que quieras */
+}
+
+
+    </style>
+</head>
+<body>
+   
+
+    <div id="loadingScreen">
+        <i class="fas fa-cog fa-spin"></i>
+        <p>Oh no, parece que no has iniciado sesión. Por favor, inicia sesión.</p>
+        <p>Automáticamente te redirigiremos al inicio de sesión. Espere un momento.</p>
+    </div>
+    
+    
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="inicioadmin.html">
+                <span class="ugb">UGB</span>
+                <span class="store">Store</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="listado.html">Listado de productos</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservas.html">Reservas</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="comentario.html">Comentario de productos</a>
+                    </li>
+                </ul>
+
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="estadisticas.html">Estadisticas</a>
+                    </li>
+                </ul>
+
+
+                <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cargando...
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="cerrarSesion()">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+
+
+    <canvas id="myChart"></canvas>
+
+    <canvas id="stockChart"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    fetchProductReservationStats();
+    fetchStockStats();
+
+    if (!isLoggedIn || isLoggedIn !== 'true') {
+        loadingScreen.style.display = 'flex'; // Muestra la pantalla de carga
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 3000);
+        return;
+    } else {
+        loadingScreen.style.display = 'none'; // Oculta la pantalla de carga
+    }
+
+    const adminData = JSON.parse(localStorage.getItem('adminData'));
+    const adminDropdownLink = document.querySelector('#adminDropdown');
+    if (adminData && adminData.name) {
+        adminDropdownLink.textContent = adminData.name;
+    } else {
+        adminDropdownLink.textContent = 'Admin';
+    }
+});
+
+function limpiarFormulario() {
+    document.getElementById("productForm").reset();
+
+    const previewImage = document.getElementById('previewImage');
+    if (previewImage) {
+        previewImage.style.display = 'none';
+    }
+}
+
+function cerrarSesion() {
+    fetch('http://127.0.0.1:3000/logout', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Limpiar el localStorage al cerrar sesión
+            localStorage.removeItem('adminData');
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = "login.html";
+        } else {
+            alert('Error al cerrar sesión. Inténtalo de nuevo.');
+        }
+    })
+    .catch(error => {
+        console.error('Error al cerrar sesión:', error);
+    });
+}
+
+function fetchProductReservationStats() {
+    fetch('http://127.0.0.1:3000/product-reservation-stats')
+        .then(response => response.json())
+        .then(data => {
+            // Procesar y mostrar los datos en gráficos
+            displayReservationStats(data);
+        })
+        .catch(error => console.error('Error al obtener estadísticas de reservas:', error));
+}
+
+function displayReservationStats(data) {
+    console.log(data); // Para verificar los datos recibidos
+
+    // Ajustar el tamaño del canvas
+    const canvas = document.getElementById('myChart');
+    canvas.style.width = '150px'; // Cambia '400px' al ancho deseado
+    canvas.style.height = '50px'; // Cambia '300px' a la altura deseada
+    const ctx = canvas.getContext('2d');
+
+    // Ordenar los datos por el número total de reservas (ascendente)
+    const sortedData = data.sort((a, b) => a.totalReservations - b.totalReservations);
+    const labels = ['Menos Reservado', 'Más Reservado'];
+    const dataPoints = [
+        sortedData[0].totalReservations, // Menos reservado
+        sortedData[sortedData.length - 1].totalReservations // Más reservado
+    ];
+    const backgroundColors = ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'];
+    const borderColors = ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'];
+
+    if (window.myChart instanceof Chart) {
+        window.myChart.destroy();
+    }
+
+    window.myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Número de Reservas',
+            data: dataPoints,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'Estadística de Productos Más y Menos Reservados',
+                padding: {
+                    top: 10,
+                    bottom: 30
+                },
+                font: {
+                    size: 18
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const labelIndex = context.dataIndex;
+                        const label = labelIndex === 0 ? sortedData[0].productName : sortedData[sortedData.length - 1].productName;
+                        return label + ': ' + context.parsed.y;
+                    }
+                }
+            }
+        }
+    }
+});
+
+}
+
+function fetchStockStats() {
+    fetch('http://127.0.0.1:3000/product-stock-stats')
+        .then(response => response.json())
+        .then(data => {
+            const labels = data.map(item => item.name);
+            const stockData = data.map(item => item.stock);
+            const backgroundColors = data.map(item => getColor(item.stockStatus));
+
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            const stockChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Stock',
+                        data: stockData,
+                        backgroundColor: backgroundColors
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Estadísticas de Stock de Productos',
+                            font: {
+                                size: 22
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 30
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    indexAxis: 'y', // Para barras horizontales
+                }
+            });
+        })
+        .catch(error => console.error('Error al obtener estadísticas de stock:', error));
+}
+
+function getColor(stockStatus) {
+    switch (stockStatus) {
+        case 'Verde':
+            return 'green';
+        case 'Amarillo':
+            return 'yellow';
+        case 'Rojo':
+            return 'red';
+        default:
+            return 'grey';
+    }
+}
+    </script>
+    
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

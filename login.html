@@ -151,54 +151,54 @@
     <script>
         const form = document.getElementById('studentLoginForm');
         const errorMessageElement = document.getElementById('errorMessage');
-        
+    
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
-        
+    
             if (!form.checkValidity()) {
                 form.classList.add('was-validated');
                 return;
             }
-        
+    
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-        
+    
             try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    }),
-                    credentials: 'include'
-                });
-        
-                const result = await response.json();
-        
-                if (response.status === 200) {
-                localStorage.setItem('isLoggedIn', 'true'); // Guardar el indicador de inicio de sesión
-                if (result.isAdmin) {
-                    window.location.href = "inicioadmin.html";
-                } else if (result.isTeacher) {
-                    window.location.href = "iniciousers.html"; // Redirige a los docentes aquí
-                } else {
-                    window.location.href = "iniciousers.html"; // Supongo que esto es para estudiantes
-                }
-            } else {
-                    errorMessageElement.textContent = result.message;
-                    errorMessageElement.classList.remove('d-none');
-                }
-
-            } catch (error) {
-                console.error("Error al enviar el formulario:", error);
-                errorMessageElement.textContent = 'Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.';
-                errorMessageElement.classList.remove('d-none');
-            }
+        const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            }),
+            credentials: 'include'
         });
-        
+
+        const result = await response.json();
+
+        if (response.status === 200) {
+            localStorage.setItem('isLoggedIn', 'true');
+            if (result.isAdmin) {
+                // Si el usuario es un superadministrador, redirigir a inicioadmin.html
+                window.location.href = "inicioadmin.html";
+            } else {
+                // Si el usuario es un usuario regular, redirigir a iniciousers.html
+                window.location.href = "iniciousers.html";
+            }
+        } else {
+            errorMessageElement.textContent = result.message;
+            errorMessageElement.classList.remove('d-none');
+        }
+
+    } catch (error) {
+        console.error("Error al enviar el formulario:", error);
+        errorMessageElement.textContent = 'Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.';
+        errorMessageElement.classList.remove('d-none');
+    }
+});
+    
         // Función para cargar la información del usuario desde el servidor y guardarla en el localStorage
         async function fetchCurrentUser() {
             try {
@@ -210,7 +210,7 @@
                     },
                     credentials: 'include'
                 });
-        
+    
                 if (response.status === 200) {
                     const data = await response.json();
                     localStorage.setItem('userName', data.name);
@@ -222,8 +222,9 @@
                 console.error('Error al obtener el usuario actual:', error);
             }
         }
-        
+    
     </script>
+    
     
         
 </body>

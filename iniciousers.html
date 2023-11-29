@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .navbar-brand {
             font-weight: 700;
@@ -101,26 +101,28 @@
         }
         .product-card img {
     border-radius: 15px 15px 0 0;
-    height: 300px;
+    height: 400px; /* Aumentado de 300px */
     width: 100%;
-    object-fit: contain; /* Cambiado de cover a contain */
+    object-fit: cover; /* Cambiado de contain a cover si es apropiado */
     transition: transform 0.2s;
-    margin-bottom: 150px; /* Añadido margen inferior */
+    /* margin-bottom: 150px; Eliminado para permitir que la imagen sea más visible */
 }
 
+.product-card {
+    margin-bottom: 20px; /* Añadido margen a la tarjeta completa */
+}
 
-        .product-card .card-body {
-            padding: 15px;
-            background-color: #f5f5f5;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            overflow: hidden;
-            max-height: 100%;
-            transition: max-height 0.2s ease-in-out;
-        }
-
+.product-card .card-body {
+    padding: 15px;
+    background-color: #f5f5f5;
+    position: relative; /* Cambiado de absolute a relative */
+    bottom: auto; /* Ya no se necesita con position: relative; */
+    left: auto; /* Ya no se necesita con position: relative; */
+    right: auto; /* Ya no se necesita con position: relative; */
+    overflow: hidden;
+    transition: max-height 0.2s ease-in-out;
+    /* Añadir un margen superior para separar del contenido de la imagen si es necesario */
+}
         .product-card .product-description,
         .product-card .product-available {
             display: none;
@@ -161,6 +163,9 @@
     .preserve-whitespace {
     white-space: pre-line;
 }
+
+
+
     </style>
 </head>
 
@@ -210,8 +215,7 @@
                 <button class="btn btn-outline-secondary" type="button" id="clearSearch">Limpiar</button>
 
                 <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span id="userNameContainer">Cargando...</span> <!-- Contenedor para el nombre del usuario -->
-                    <span id="userCode" class="ms-2"></span> <!-- Aquí se mostrará el código del estudiante -->
+                    <span id="userNameContainer">Cargando...</span>
                 </button>
                 
                     <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
@@ -285,10 +289,15 @@
                     </div>
                     <div class="mb-3">
                         <label for="pickupTime" class="form-label">Hora de Recogida</label>
-                        <input type="datetime-local" class="form-control" id="pickupTime" required>
+                        <input type="text" class="form-control" id="pickupTime" required>
+
                     </div>
                     
+                    
                     <input type="hidden" id="productId" name="productId">
+                    <input type="hidden" id="productName" name="productName"> <!-- Aquí está el nuevo campo oculto -->
+                    <input type="hidden" id="productImage" name="productImage">
+
                     <button type="submit" class="btn btn-primary">Reservar</button>
                 </form>
             </div>
@@ -306,6 +315,7 @@
             </div>
             <div class="modal-body">
                 Tu reserva se ha realizado con éxito.
+                <p class="text-warning"> ¡Gracias por tu reserva! Por favor, recoge tu producto lo antes posible.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -313,6 +323,7 @@
         </div>
     </div>
 </div>
+
 
 
 <div class="d-flex justify-content-end">
@@ -330,7 +341,13 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data-10-year-range.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const loadingScreen = document.getElementById('loadingScreen');
@@ -348,23 +365,20 @@
             }
         
             // Función para cargar el nombre y código del usuario desde el localStorage
-            function loadCurrentUserFromLocalStorage() {
-                const userName = localStorage.getItem('userName');
-                const userCode = localStorage.getItem('userCode');
-        
-                const userNameContainerElement = document.getElementById('userNameContainer');
-                const userCodeElement = document.getElementById('userCode');
-        
-                if (userName && userCode && userNameContainerElement && userCodeElement) {
-                    userNameContainerElement.textContent = userName;
-                    userCodeElement.textContent = userCode;
-                } else {
-                    console.error("No se encontró el nombre o código del usuario en el localStorage o los elementos del DOM no están disponibles.");
-                    if (userNameContainerElement) {
-                        userNameContainerElement.textContent = "Iniciar sesión";
-                    }
-                }
+            // Actualizar la función loadCurrentUserFromLocalStorage para no mostrar el código del estudiante/maestro
+    function loadCurrentUserFromLocalStorage() {
+        const userName = localStorage.getItem('userName');
+        const userNameContainerElement = document.getElementById('userNameContainer');
+
+        if (userName && userNameContainerElement) {
+            userNameContainerElement.textContent = userName;
+        } else {
+            console.error("No se encontró el nombre del usuario en el localStorage o el elemento del DOM no está disponible.");
+            if (userNameContainerElement) {
+                userNameContainerElement.textContent = "Iniciar sesión";
             }
+        }
+    }
         
             // Función para cargar la información del usuario desde el servidor y guardarla en el localStorage
             async function fetchCurrentUser() {
@@ -398,9 +412,12 @@
                     console.error('Error al obtener el usuario actual:', error);
                 }
             }
+
+            
         
             // Llamar a la función al cargar la página
             fetchCurrentUser();
+            
         
             document.getElementById('logoutBtn').addEventListener('click', function (event) {
                 event.preventDefault();
@@ -429,7 +446,10 @@
                         console.error('Error al cerrar sesión:', error);
                     });
             });
+            
         
+     
+
             // Cargar banners
             async function loadBanners() {
                 try {
@@ -464,7 +484,9 @@
                     popularProducts.forEach(product => {
                         const productCard = `
                             <div class="col-md-4 mb-4">
-                                <div class="card product-card" data-id="${product.name}" data-objectid="${product._id}">
+                               <div class="card product-card" data-id="${product._id}" data-name="${product.name}">
+
+
 
                                     <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
                                     <div class="card-body">
@@ -480,7 +502,7 @@
                                         <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#reservationModal">
                                             Reservar
                                         </button>
-                                            <textarea class="form-control mt-2" placeholder="Deja tu comentario..."></textarea>
+                                            <textarea class="form-control mt-2" placeholder="Deja tu comentario sobre el producto..."></textarea>
                                         <button class="btn btn-secondary mt-2 submit-comment">Enviar Comentario</button>
                                         
                                     </div>
@@ -508,7 +530,9 @@
                     offerProducts.forEach(product => {
                         const productCard = `
                             <div class="col-md-4 mb-4">
-                                <div class="card product-card" data-id="${product.name}" data-objectid="${product._id}">
+                               <div class="card product-card" data-id="${product._id}" data-name="${product.name}">
+
+
 
                                     <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
                                     <div class="card-body">
@@ -525,7 +549,7 @@
                                             Reservar
                                         </button>
 
-                                        <textarea class="form-control mt-2" placeholder="Deja tu comentario..."></textarea>
+                                        <textarea class="form-control mt-2" placeholder="Deja tu comentario sobre el producto..."></textarea>
                                      <button class="btn btn-secondary mt-2 submit-comment">Enviar Comentario</button>
                                     </div>
                                 </div>
@@ -566,7 +590,9 @@ async function filterProducts() {
                         products.forEach(product => {
                             const productCard = `
                                 <div class="col-md-4 mb-4">
-                                    <div class="card product-card" data-id="${product.name}" data-objectid="${product._id}">
+                                   <div class="card product-card" data-id="${product._id}" data-name="${product.name}">
+
+
 
                                         <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
                                         <div class="card-body">
@@ -583,7 +609,7 @@ async function filterProducts() {
                                                 Reservar
                                             </button>
 
-                                            <textarea class="form-control mt-2" placeholder="Deja tu comentario..."></textarea>
+                                            <textarea class="form-control mt-2" placeholder="Deja tu comentario sobre el producto..."></textarea>
                                         <button class="btn btn-secondary mt-2 submit-comment">Enviar Comentario</button>
                                         </div>
                                     </div>
@@ -615,19 +641,30 @@ async function filterProducts() {
                 loadOfferProducts();
             });
         
-            // Cuando el modal se esté mostrando
+           // Cuando el modal se esté mostrando
 document.getElementById('reservationModal').addEventListener('show.bs.modal', function (event) {
     // Obtener el botón que activó el modal
     const button = event.relatedTarget;
-    // Obtener el ID del producto desde el atributo data-id del botón
+    // Obtener el ID y el nombre del producto desde los atributos data-id y data-name del botón
     const productCard = button.closest('.product-card');
     const productId = productCard ? productCard.getAttribute('data-id') : null;
+    const productName = productCard ? productCard.getAttribute('data-name') : null;
+    // Obtener la URL de la imagen del producto
+    const productImage = productCard.querySelector('img').src;
+    document.getElementById('productImage').value = productImage;
     
     if (productId) {
         // Establecer el valor del campo oculto con el ID del producto
         document.getElementById('productId').value = productId;
     } else {
         console.error('No se pudo obtener el ID del producto');
+    }
+
+    if (productName) {
+        // Establecer el valor del campo oculto con el nombre del producto
+        document.getElementById('productName').value = productName;
+    } else {
+        console.error('No se pudo obtener el nombre del producto');
     }
 
     // Obtener datos del usuario del localStorage
@@ -637,68 +674,153 @@ document.getElementById('reservationModal').addEventListener('show.bs.modal', fu
     // Rellenar los campos en el modal
     document.getElementById('userName').value = userName || '';
     document.getElementById('userEmail').value = userEmail || '';
+
+    // Establecer los valores mínimos y máximos para la hora de recogida
+    const currentDate = new Date();
+    const minTime = new Date(currentDate.setHours(8, 0, 0)).toISOString().slice(0, 16);
+    const maxTime = new Date(currentDate.setHours(16, 0, 0)).toISOString().slice(0, 16);
+    document.getElementById('pickupTime').min = minTime;
+    document.getElementById('pickupTime').max = maxTime;
 });
-        
-            // Reservar producto
-            document.getElementById('reservationForm').addEventListener('submit', function (event) {
-                event.preventDefault();
-        
-                // Obtener los datos del formulario
-                const userName = document.getElementById('userName').value;
-                const userEmail = document.getElementById('userEmail').value;
-                const pickupTime = document.getElementById('pickupTime').value;
-                const productId = document.getElementById('productId').value;
-        
-                 // Validar la fecha
-        const pickupDate = new Date(pickupTime);
-        if (isNaN(pickupDate.valueOf())) {
-            alert('Por favor, ingresa una fecha y hora válidas.');
-            return;
+
+
+flatpickr("#pickupTime", {
+    enableTime: true,
+    dateFormat: "Y-m-d h:i K", // Formato de 12 horas con AM/PM
+    time_24hr: false, // Cambiado a false para formato de 12 horas
+    minTime: "08:00 AM", // Formato de 12 horas para la hora mínima
+    maxTime: "04:00 PM", // Formato de 12 horas para la hora máxima
+    minuteIncrement: 1,
+    disable: [
+        function(date) {
+            // Deshabilitar todos los domingos
+            if (date.getDay() === 0) {
+                return true;
+            }
+
+            // Convertir la hora de la fecha a formato de 12 horas y deshabilitar el intervalo de 12:00 PM a 01:00 PM
+            let hour = date.getHours();
+            let minute = date.getMinutes();
+            let isPM = hour >= 12;
+            if (isPM) {
+                hour -= 12;
+            }
+            if (hour === 0) {
+                hour = 12;
+            }
+            let timeString = `${hour}:${minute < 10 ? '0' + minute : minute} ${isPM ? 'PM' : 'AM'}`;
+
+            // Comprobar si la hora actual está dentro del intervalo de tiempo deshabilitado
+            if (timeString >= "12:00 PM" && timeString < "01:00 PM") {
+                return true;
+            }
+
+            return false; // No deshabilitar otros tiempos
         }
+    ],
+    locale: {
+        firstDayOfWeek: 1 // Lunes
+    }
+});
 
-        // Convertir la fecha a formato ISO 8601
-        const pickupTimeISO = pickupDate.toISOString();
 
-        // Añadir un console.log para verificar los datos que se están enviando
-        console.log({
+// Reservar producto
+document.getElementById('reservationForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    // Obtener los datos del formulario
+    const userName = document.getElementById('userName').value;
+    const userEmail = document.getElementById('userEmail').value;
+    const pickupTimeElement = document.getElementById('pickupTime');
+    const pickupTime = pickupTimeElement.value;
+    const productId = document.getElementById('productId').value;
+    const productName = document.getElementById('productName').value;
+    const productImage = document.getElementById('productImage').value;
+
+    // Parsear la hora de recogida a objeto Date y luego a string ISO
+    const pickupDate = flatpickr.parseDate(pickupTime, "Y-m-d h:i K");
+    const pickupTimeISO = pickupDate.toISOString();
+
+    // Comprobar si la hora de recogida es anterior a la hora actual
+    if (pickupDate < new Date()) {
+        Swal.fire({
+            title: 'Hora no válida',
+            text: 'La hora de recogida no puede ser anterior a la hora actual.',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+
+    // Convertir la hora de recogida al formato UTC
+    const pickupTimeUTC = moment(pickupTimeISO).utc().format();
+
+    // Enviar la información al servidor
+    fetch('http://127.0.0.1:3000/reserve-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
             name: userName,
             email: userEmail,
-            pickupTime: pickupTimeISO,
-            productId: productId
-        });
-                
-                // Enviar la información al servidor
-                fetch('http://127.0.0.1:3000/reserve-product', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: userName,
-                        email: userEmail,
-                        pickupTime: pickupTimeISO,
-                        productId: productId
-                    })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Mostrar el modal de confirmación
-                            showConfirmationModal();
-                        } else {
-                            alert(data.message || 'Error al reservar el producto. Por favor, inténtalo de nuevo.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al reservar el producto:', error);
-                    });
+            pickupTime: pickupTimeUTC,
+            productId: productId,
+            productName: productName,
+            productImage: productImage
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message);
             });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showConfirmationModal('Tu reserva se ha realizado con éxito. Recuerda recoger tu producto a la hora programada.');
+        } else {
+            Swal.fire({
+                title: 'Ya tienes una reserva pendiente',
+                text: 'No puedes hacer otra reserva hasta que retires la actual o expire.',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+    // Verificar si la propiedad 'message' del error contiene el mensaje esperado
+    if (error.message && error.message.includes('Ya tienes una reserva pendiente')) {
+        Swal.fire({
+            title: 'Ya tienes una reserva pendiente',
+            text: 'No puedes hacer otra reserva hasta que retires la actual o expire.',
+            icon: 'info',
+            confirmButtonText: 'OK'
+        });
+    } else {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'No se pudo completar la solicitud de reserva. Detalles: ' + (error.message || error),
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+    }
+});
 
-            // Función para mostrar el modal de confirmación
-            function showConfirmationModal() {
+});
+
+
+
+
+// Función para mostrar el modal de confirmación
+function showConfirmationModal(message) {
+    document.querySelector('#confirmationModal .modal-body').textContent = message;
     var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
     confirmationModal.show();
 }
+
+
 
 
 //COMENTARIOS   
@@ -709,13 +831,16 @@ document.addEventListener('click', function(event) {
         const productCard = event.target.closest('.product-card');
         const productId = productCard ? productCard.getAttribute('data-id') : null;
         
+        const productImageElement = productCard.querySelector('img.card-img-top');
+        const productImageUrl = productImageElement ? productImageElement.src : null;
+
         if (!comment) {
             alert('Por favor, escribe un comentario antes de enviar.');
             return;
         }
 
-        if (!productId) {
-            console.error('No se pudo obtener el ID del producto');
+        if (!productId || !productImageUrl) {
+            console.error('No se pudo obtener el ID del producto o la URL de la imagen');
             return;
         }
 
@@ -729,11 +854,11 @@ document.addEventListener('click', function(event) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-            productId: productId,
-            comment: comment,
-            userName: userName    
-        })
-
+                productId: productId,
+                comment: comment,
+                userName: userName,
+                productImage: productImageUrl // Incluye la URL de la imagen aquí
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -749,7 +874,10 @@ document.addEventListener('click', function(event) {
         });
     }
 });
+
         
+
+
             // Llamar a las funciones al cargar la página
             loadBanners();
             loadPopularProducts();

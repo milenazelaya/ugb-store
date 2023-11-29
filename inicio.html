@@ -71,24 +71,28 @@
         }
         .product-card img {
     border-radius: 15px 15px 0 0;
-    height: 300px;
+    height: 400px; /* Aumentado de 300px */
     width: 100%;
-    object-fit: contain; /* Cambiado de cover a contain */
+    object-fit: cover; /* Cambiado de contain a cover si es apropiado */
     transition: transform 0.2s;
-    margin-bottom: 150px; /* Añadido margen inferior */
+    /* margin-bottom: 150px; Eliminado para permitir que la imagen sea más visible */
 }
 
-    .product-card .card-body {
-            padding: 15px;
-            background-color: #f5f5f5;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            overflow: hidden;
-            max-height: 100%;
-            transition: max-height 0.2s ease-in-out;
-        }
+.product-card {
+    margin-bottom: 20px; /* Añadido margen a la tarjeta completa */
+}
+
+.product-card .card-body {
+    padding: 15px;
+    background-color: #f5f5f5;
+    position: relative; /* Cambiado de absolute a relative */
+    bottom: auto; /* Ya no se necesita con position: relative; */
+    left: auto; /* Ya no se necesita con position: relative; */
+    right: auto; /* Ya no se necesita con position: relative; */
+    overflow: hidden;
+    transition: max-height 0.2s ease-in-out;
+    /* Añadir un margen superior para separar del contenido de la imagen si es necesario */
+}
 
         .product-card .product-description,
         .product-card .product-available {
@@ -152,7 +156,8 @@
                 <form class="d-flex me-3 mb-3 mt-3">
                     <div class="me-2">
                         <select class="form-select" aria-label="Filter">
-                            <option selected>Catalogo</option>
+                            <option selected>Categoria</option>
+
                             <option value="Tecnología">Tecnología</option>
                             <option value="Diseño">Diseño</option>
                             <option value="Leyes">Leyes</option>

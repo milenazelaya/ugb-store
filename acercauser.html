@@ -206,24 +206,20 @@
             }
     
             // Función para cargar el nombre y código del usuario desde el localStorage
-            function loadCurrentUserFromLocalStorage() {
-                const userName = localStorage.getItem('userName');
-                const userCode = localStorage.getItem('userCode');
-    
-                const userNameContainerElement = document.getElementById('userNameContainer');
-                const userCodeElement = document.getElementById('userCode');
-    
-                if (userName && userCode && userNameContainerElement && userCodeElement) {
-                    userNameContainerElement.textContent = userName;
-                    userCodeElement.textContent = userCode;
-                } else {
-                    console.error("No se encontró el nombre o código del usuario en el localStorage o los elementos del DOM no están disponibles.");
-                    if (userNameContainerElement) {
-                        userNameContainerElement.textContent = "Iniciar sesión";
-                    }
-                }
+            // Actualizar la función loadCurrentUserFromLocalStorage para no mostrar el código del estudiante/maestro
+    function loadCurrentUserFromLocalStorage() {
+        const userName = localStorage.getItem('userName');
+        const userNameContainerElement = document.getElementById('userNameContainer');
+
+        if (userName && userNameContainerElement) {
+            userNameContainerElement.textContent = userName;
+        } else {
+            console.error("No se encontró el nombre del usuario en el localStorage o el elemento del DOM no está disponible.");
+            if (userNameContainerElement) {
+                userNameContainerElement.textContent = "Iniciar sesión";
             }
-    
+        }
+    }
             // Función para cargar la información del usuario desde el servidor y guardarla en el localStorage
             async function fetchCurrentUser() {
                 try {

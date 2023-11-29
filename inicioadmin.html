@@ -143,12 +143,11 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="listado_de_productos.html">Ver Productos y Banners</a>
-                    </li>
-                </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="listado.html">Listado de productos</a>
+                </li>
+            </ul>>
 
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -297,7 +296,7 @@
     </div>
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <script>
@@ -402,32 +401,50 @@ function validateForm() {
 
 document.getElementById('productForm').addEventListener('submit', function(event) {
     event.preventDefault();
-
+    
     if (!validateForm()) {
         return;
     }
-    const formData = new FormData(this);
-    
-    // Añade el valor del checkbox "popular" a formData
-    const productPopular = document.getElementById('productPopular');
-    formData.append('productPopular', productPopular.checked);
 
-    fetch('http://127.0.0.1:3000/upload-product', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Producto subido con éxito');
-            limpiarFormulario();
-        } else {
-            alert('Error al subir el producto: ' + data.message);
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Estás a punto de subir un nuevo producto.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, subir producto'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData(this);
+
+            // Añade el valor del checkbox "popular" a formData
+            const productPopular = document.getElementById('productPopular');
+            formData.append('productPopular', productPopular.checked);
+
+            // Aquí iría tu código de fetch...
+            // Suponiendo que tu endpoint responde con { success: true/false, message: '' }
+
+            // Ejemplo de respuesta
+            const response = { success: true, message: 'Producto subido con éxito' };
+
+            if (response.success) {
+                Swal.fire(
+                    '¡Subido!',
+                    response.message,
+                    'success'
+                ).then(() => {
+                    limpiarFormulario();
+                    window.location.reload(); // Recarga la página
+                });
+            } else {
+                Swal.fire(
+                    'Error',
+                    'Hubo un error al subir el producto: ' + response.message,
+                    'error'
+                );
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error al subir el producto:', error);
     });
 });
 
@@ -462,26 +479,44 @@ document.getElementById('bannerImage').addEventListener('change', function() {
 document.getElementById('bannerForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const formData = new FormData(this);
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Estás a punto de subir un nuevo banner.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, subir banner'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData(this);
 
-    fetch('http://127.0.0.1:3000/upload-banner', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Banner subido con éxito');
-            limpiarFormularioBanner();
-        } else {
-            alert('Error al subir el banner: ' + data.message);
+            // Aquí iría tu código de fetch...
+            // Suponiendo que tu endpoint responde con { success: true/false, message: '' }
+
+            // Ejemplo de respuesta
+            const response = { success: true, message: 'Banner subido con éxito' };
+
+            if (response.success) {
+                Swal.fire(
+                    '¡Subido!',
+                    response.message,
+                    'success'
+                ).then(() => {
+                    limpiarFormularioBanner();
+                    window.location.reload(); // Recarga la página
+                });
+            } else {
+                Swal.fire(
+                    'Error',
+                    'Hubo un error al subir el banner: ' + response.message,
+                    'error'
+                );
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error al subir el banner:', error);
     });
 });
+
 
 function limpiarFormularioBanner() {
     document.getElementById("bannerForm").reset();

@@ -113,8 +113,96 @@
     font-size: 20px;
 }
 
+.product-image {
+    width: 300px; /* o cualquier otro tamaño que prefieras */
+    height: auto; /* para mantener las proporciones de la imagen */
+    border-radius: 5px; /* si deseas bordes redondeados */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* si deseas una sombra sutil */
+}
 
-       
+ /* Estilos para la tabla */
+.table {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #333333;
+    color: white;
+}
+
+.table td, .table th {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+/* Estilos para los botones */
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    transition: all 0.3s;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Estilos para las imágenes de los productos */
+table img {
+    width: 100px; /* Aumentamos el tamaño de la imagen */
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+      /* Espacio entre el nav y la tabla */
+.table-responsive {
+    margin-top: 30px; /* Ajusta este valor según tus preferencias */
+}
+
+.table-responsive {
+    overflow-x: auto; /* Asegura que el desplazamiento horizontal esté activo */
+}
+
+
+.responsive-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card {
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .responsive-table {
+        padding: 0;
+    }
+
+    .product-card .row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .product-card .col-md-4, .product-card .col-md-8 {
+        width: 100%;
+    }
+
+    .product-card img {
+        margin-bottom: 10px;
+    }
+
+    .card-body {
+        text-align: center;
+    }
+}
+
 
     </style>
 </head>
@@ -141,9 +229,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="listado_de_productos.html">Ver Productos y Banners</a>
+                        <a class="nav-link" href="listado.html">Listado de productos</a>
                     </li>
                 </ul>
+
 
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -156,6 +245,14 @@
                         <a class="nav-link" href="comentario.html">Comentario de productos</a>
                     </li>
                 </ul>
+
+                 
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="estadisticas.html">Estadisticas</a>
+                    </li>
+                </ul>
+
 
                 <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
                     <li class="nav-item dropdown">
@@ -171,29 +268,66 @@
         </div>
     </nav>
     
+    <h2>Reservas</h2>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <!-- Fila para la barra de búsqueda -->
+            <tr>
+                <th colspan="10">
+                    <input type="text" id="searchField" placeholder="Buscar por email, nombre o apellido">
+                    <button onclick="searchReservations()">Buscar</button>
+                    <button onclick="clearSearch()">Limpiar Búsqueda</button>
+                </th>
+            </tr>
+            <!-- Fila para los encabezados de las columnas -->
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Correo</th>
+                <th scope="col">ID del Producto</th>
+                <th scope="col">Nombre del Producto</th>
+                <th scope="col">Imagen del Producto</th>
+                <th scope="col">Hora de Recogida</th>
+                <th scope="col">Expirado</th>
+                <th scope="col">Fecha de Reserva</th>
+                <th scope="col">Fecha de Recogida</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        
+        <tbody id="reservationsList">
+            <!-- Las reservas se cargarán aquí desde el servidor -->
+        </tbody>
+    </table>
+</div>
 
-    <div class="table-responsive"> <!-- Envuelve la tabla en un div con la clase table-responsive -->
+  
+    <h2>Productos Recogidos</h2>
+    <div id="pickedUpProductsList" class="responsive-table">
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Correo</th>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Hora de Recogida</th>
-                    <th scope="col">Acciones</th>
+                    <th scope="col" class="d-none d-md-table-cell">Nombre del Cliente</th>
+                    <th scope="col" class="d-none d-lg-table-cell">Correo Electrónico</th>
+                    <th scope="col">Nombre del Producto</th>
+                    <th scope="col" class="d-none d-sm-table-cell">Imagen del Producto</th>
+                    <th scope="col" class="d-none d-md-table-cell">Fecha de Recogida</th>
+                    <th scope="col">Acciones</th> <!-- Columna adicional para acciones -->
                 </tr>
             </thead>
-            <tbody id="reservationsList">
-                <!-- Las reservas se cargarán aquí desde el servidor -->
+            <tbody id="pickedUpProductsList">
+                <!-- Los productos recogidos se cargarán aquí desde el servidor -->
             </tbody>
         </table>
     </div>
-      
 
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data-10-year-range.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        console.log("Estado inicial de isLoggedIn:", localStorage.getItem('isLoggedIn'));
             const loadingScreen = document.getElementById('loadingScreen');
             const isLoggedIn = localStorage.getItem('isLoggedIn');
 
@@ -242,7 +376,7 @@
     });
 }
 
-//reservas
+// Función para cargar y mostrar las reservas
 function loadReservations() {
     fetch('http://127.0.0.1:3000/reservations', {
         method: 'GET',
@@ -259,28 +393,144 @@ function loadReservations() {
         reservationsList.innerHTML = ''; // Limpiar la lista actual
 
         data.forEach(reservation => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${reservation.name}</td>
-        <td>${reservation.email}</td>
-        <td>${reservation.product}</td>
-        <td>${new Date(reservation.pickupTime).toLocaleString()}</td>
-        <td>
-            <button class="btn btn-danger" onclick="deleteReservation('${reservation._id}')">Eliminar</button>
-        </td>
-    `;
-    reservationsList.appendChild(row);
-});
+            const reservationDateLocal = moment.utc(reservation.reservationDate).tz("America/El_Salvador").format('YYYY-MM-DD hh:mm A');
+            const pickupTimeLocal = moment.utc(reservation.pickupTime).tz("America/El_Salvador").format('YYYY-MM-DD hh:mm A');
 
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${reservation.name}</td>
+                <td>${reservation.email}</td>
+                <td>${reservation.product}</td>
+                <td>${reservation.productName}</td>
+                <td><img class="product-image" src="${reservation.productImage}" alt="${reservation.productName}"></td>
+                <td>${pickupTimeLocal}</td>
+                <td>${reservation.hasExpired ? 'Sí' : 'No'}</td>
+                <td>${reservationDateLocal}</td>
+                <td>
+                    <button class="btn btn-success mb-2" onclick="markAsPickedUp('${reservation._id}')">Marcar como recogido</button>
+                    <button class="btn btn-danger mb-2" onclick="deleteReservation('${reservation._id}')">Eliminar</button>
+                </td>
+            `;
+            reservationsList.appendChild(row);
+        });
     })
     .catch(error => {
         console.error('Error al cargar las reservas:', error);
     });
 }
 
+
+
 function deleteReservation(id) {
-    fetch(`http://127.0.0.1:3000/reservations/${id}`, {
-        method: 'DELETE',
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Lugar para tu lógica de eliminación
+            fetch(`http://127.0.0.1:3000/reservations/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        'Eliminado!',
+                        'La reserva ha sido eliminada.',
+                        'success'
+                    );
+                    loadReservations(); // Recargar las reservas después de eliminar
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        'Hubo un problema al eliminar la reserva.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.error('Error al eliminar la reserva:', error);
+            });
+        }
+    })
+}
+
+
+function searchReservations() {
+    const searchTerm = document.getElementById('searchField').value;
+    fetch(`http://127.0.0.1:3000/reservations/search?term=${encodeURIComponent(searchTerm)}`, {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        // Verifica si la respuesta del servidor es exitosa
+        if (!response.ok) {
+            throw new Error(`Error en el servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Actualiza la tabla con los resultados de la búsqueda
+        updateReservationsTable(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Aquí podrías mostrar un mensaje al usuario indicando que ocurrió un error
+    });
+}
+
+function updateReservationsTable(data) {
+    var tableBody = document.getElementById("reservationsList"); // Usando el ID correcto del tbody
+
+    // Limpia las filas existentes
+    tableBody.innerHTML = '';
+
+    // Añade nuevas filas con los datos de las reservas
+    data.forEach(function(reserva) {
+        var row = document.createElement("tr");
+        
+        // Añadiendo todas las celdas necesarias
+        row.innerHTML = `
+            <td>${reserva.name}</td>
+            <td>${reserva.email}</td>
+            <td>${reserva.product}</td>
+            <td>${reserva.productName}</td>
+            <td><img class="product-image" src="${reserva.productImage}" alt="${reserva.productName}"></td>
+            <td>${moment.utc(reserva.pickupTime).tz("America/El_Salvador").format('YYYY-MM-DD hh:mm A')}</td>
+            <td>${reserva.hasExpired ? 'Sí' : 'No'}</td>
+            <td>${moment.utc(reserva.reservationDate).tz("America/El_Salvador").format('YYYY-MM-DD hh:mm A')}</td>
+            <td>
+                <button class="btn btn-success mb-2" onclick="markAsPickedUp('${reserva._id}')">Marcar como recogido</button>
+                <button class="btn btn-danger mb-2" onclick="deleteReservation('${reserva._id}')">Eliminar</button>
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+}
+
+function clearSearch() {
+    document.getElementById('searchField').value = ''; // Limpia el campo de búsqueda
+    loadReservations(); // Recarga todas las reservas
+}
+
+
+//exira
+function markAsPickedUp(id) {
+    fetch(`http://127.0.0.1:3000/reservations/pickup/${id}`, {
+        method: 'PATCH', // Cambia de PUT a PATCH
         credentials: 'include'
     })
     .then(response => {
@@ -291,11 +541,97 @@ function deleteReservation(id) {
     })
     .then(data => {
         if (data.success) {
-            alert('Reserva eliminada con éxito.');
-            loadReservations(); // Recargar las reservas después de eliminar
+            alert('Producto marcado como recogido con éxito.');
+            loadReservations(); // Recargar las reservas después de marcar como recogido
+            loadPickedUpProducts(); // Cargar la lista de productos recogidos
         } else {
-            alert('Error al eliminar la reserva. Inténtalo de nuevo.');
+            alert('Error al marcar el producto como recogido. Inténtalo de nuevo.');
         }
+    })
+    .catch(error => {
+        console.error('Error al marcar el producto como recogido:', error);
+    });
+}
+
+
+// Función para cargar y mostrar los productos recogidos y disponibles
+function loadPickedUpProducts() {
+    fetch('http://127.0.0.1:3000/products/picked-up', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(reservations => {
+        const pickedUpProductsList = document.getElementById('pickedUpProductsList');
+        pickedUpProductsList.innerHTML = ''; // Limpiar la lista actual
+
+        reservations.forEach(reservation => {
+            // Configuración para mostrar la hora en formato de 12 horas con AM/PM
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            };
+            // Convertir la hora de recogida a la zona horaria local de El Salvador y en formato de 12 horas
+            const pickupTime = new Date(reservation.pickupTime).toLocaleString('es-SV', options);
+
+            // Crear un nuevo elemento de tarjeta para cada producto
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            // Agregar contenido a la tarjeta
+            card.innerHTML = `
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="${reservation.productImage}" alt="${reservation.productName}" class="img-fluid rounded-start" style="max-width: 100px;">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">${reservation.productName}</h5>
+                                <p class="card-text">${reservation.customerName}</p>
+                                <p class="card-text"><small class="text-muted">${reservation.customerEmail}</small></p>
+                                <p class="card-text">${pickupTime}</p>
+                                <button onclick="deletePickedUpProduct('${reservation._id}')" class="btn btn-danger">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Añadir la tarjeta a la lista de productos recogidos
+            pickedUpProductsList.appendChild(card);
+        });
+    })
+    .catch(error => {
+        console.error('Error al cargar los productos recogidos:', error);
+    });
+}
+
+// Función para eliminar un producto recogido
+function deletePickedUpProduct(reservationId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta reserva?')) {
+        return; // No hacer nada si el usuario cancela la acción
+    }
+
+    fetch(`http://127.0.0.1:3000/picked-up-reservations/${reservationId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(result => {
+        console.log(result.message);
+        loadPickedUpProducts(); // Recargar la lista de productos recogidos
     })
     .catch(error => {
         console.error('Error al eliminar la reserva:', error);
@@ -306,12 +642,12 @@ function deleteReservation(id) {
 // Llamar a la función cuando se cargue la página
 document.addEventListener('DOMContentLoaded', function () {
     loadReservations();
-    // ... el resto de tu código ...
+    loadPickedUpProducts();
 });
 
     </script>
     
-    
+ 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

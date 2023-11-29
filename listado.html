@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .navbar-brand .ugb, .navbar-brand .store {
+            position: relative;
+        }
+
+        .navbar-brand .ugb::after, .navbar-brand .store::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+
+        .navbar-brand .ugb {
+            color: red;
+        }
+
+        .navbar-brand .store {
+            color: white;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+        }
+
+        .navbar-nav .nav-link.active {
+            font-weight: bold;
+        }
+
+        .btn-outline-light {
+            margin-left: 5px;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                flex-direction: column;
+            }
+
+            .d-flex {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .form-select, .form-control {
+                margin-bottom: 10px;
+            }
+        }
+
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 600px;
+        }
+
+        #loadingScreen {
+    display: none; /* Estará oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#loadingScreen i {
+    font-size: 50px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+#loadingScreen p {
+    color: white;
+    font-size: 20px;
+}
+
+#previewImage, #previewPromoImage {
+            max-width: 500px;
+            display: none;
+            margin-top: 10px;
+        }
+
+       /* Estilo para el select dentro de la tabla */
+#productsTable .form-select {
+    color: black;
+}
+
+#productsTable .form-select {
+    background-color: black;
+    color: white;
+}
+
+/* Opcional: Cambiar el color de las opciones al desplegar el select */
+#productsTable .form-select option {
+    background-color: white;
+    color: black;
+}
+
+/* Estilos para los botones de acción */
+.action-buttons {
+    display: flex;
+    justify-content: center; /* Esto centrará los botones en la celda */
+}
+
+/* Ajuste del espaciado entre botones */
+.action-buttons .btn {
+    margin: 0 5px; /* Ajusta el margen según sea necesario */
+}
+
+/* Estilo para imágenes dentro de la tabla de productos */
+#productsTable img {
+    width: 150px; /* Ajusta este valor para cambiar el tamaño de las imágenes */
+    height: auto; /* Establece la altura automática para mantener la relación de aspecto */
+    object-fit: contain; /* Esto asegura que la imagen se ajuste dentro del tamaño especificado manteniendo su proporción */
+    border-radius: 5px; /* Opcional: agrega bordes redondeados a las imágenes */
+}
+
+/* Estilo para hacer que la tabla de productos sea desplazable */
+.table-responsive {
+            overflow-x: auto; /* Permite desplazamiento horizontal */
+            max-height: 400px; /* Altura máxima antes de mostrar la barra de desplazamiento vertical */
+        }
+
+    </style>
+</head>
+<body>
+   
+
+    <div id="loadingScreen">
+        <i class="fas fa-cog fa-spin"></i>
+        <p>Oh no, parece que no has iniciado sesión. Por favor, inicia sesión.</p>
+        <p>Automáticamente te redirigiremos al inicio de sesión. Espere un momento.</p>
+    </div>
+    
+    
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="inicioadmin.html">
+                <span class="ugb">UGB</span>
+                <span class="store">Store</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="listado.html">Listado de productos</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservas.html">Reservas</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="comentario.html">Comentario de productos</a>
+                    </li>
+                </ul>
+
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="estadisticas.html">Estadisticas</a>
+                    </li>
+                </ul>
+
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="listado.html">listado</a>
+                    </li>
+                </ul>
+
+
+                <ul class="navbar-nav ms-auto"> <!-- Nuevo <ul> con ms-auto solo para el menú desplegable -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cargando...
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="cerrarSesion()">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    
+
+    
+    <div id="app">
+        <h2>Listado de Productos</h2>
+        <div class="table-responsive"> <!-- Clase modificada para desplazamiento -->
+            <table class="table table-bordered table-hover" id="productsTable">
+            <thead class="table-dark">
+                
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>
+                        <!-- Label oculto para accesibilidad -->
+                        <label for="categoryFilter" class="visually-hidden">Filtrar por Categoría</label>
+                        Categorías
+                        <select id="categoryFilter" class="form-select" onchange="filterByCategory()">
+                            <option value="">Todas</option>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Diseño">Diseño</option>
+                            <option value="Leyes">Leyes</option>
+                            <option value="Accesorios para computadora y mochilas">Accesorios para computadora y mochilas</option>
+                            <option value="Promocionales">Promocionales</option>
+                            <option value="Enfermería">Enfermería</option>
+                            <option value="Utilería">Utilería</option>
+                        </select>
+                    </th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Oferta</th>
+                    <th>Popular</th>
+                    <th>Disponibilidad</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las filas se generarán mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para editar productos -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProductModalLabel">Editar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm">
+                    <div class="mb-3">
+                        <label for="editProductImagePreview" class="form-label">Imagen Actual</label>
+                        <img id="editProductImagePreview" src="" alt="Imagen del Producto" class="img-fluid">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductImage" class="form-label">Cambiar Imagen</label>
+                        <input type="file" class="form-control" id="editProductImage" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductName" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editProductName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductCategory" class="form-label">Categoría</label>
+                        <input type="text" class="form-control" id="editProductCategory">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductDescription" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="editProductDescription"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductPrice" class="form-label">Precio</label>
+                        <!-- Campo modificado para aceptar precios con decimales -->
+                        <input type="text" class="form-control" id="editProductPrice" pattern="^\d+(\.\d{1,2})?$" title="Ingrese un precio válido (por ejemplo, 10.50)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductOffer" class="form-label">Oferta</label>
+                        <input type="text" class="form-control" id="editProductOffer">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductPopular" class="form-label">Popular</label>
+                        <input type="checkbox" class="form-check-input" id="editProductPopular">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductAvailability" class="form-label">Disponibilidad</label>
+                        <input type="text" class="form-control" id="editProductAvailability">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProductStock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="editProductStock">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="updateProduct()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2>Listado de Banners</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Imagen del Banner</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="bannersTableBody">
+                <!-- Aquí se mostrarán los banners -->
+            </tbody>
+        </table>
+    </div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Asegúrate de que tu script personalizado venga después de SweetAlert2 -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        // Verificar si se guardó una posición de desplazamiento
+        const scrollPosition = localStorage.getItem('scrollPosition');
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            localStorage.removeItem('scrollPosition'); // Limpiar la posición guardada
+        }
+
+        // Cargar banners al iniciar la página
+    loadBanners();
+
+        const loadingScreen = document.getElementById('loadingScreen');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+            loadingScreen.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 3000);
+            return;
+        } else {
+            loadingScreen.style.display = 'none';
+        }
+
+        const adminData = JSON.parse(localStorage.getItem('adminData'));
+        const adminDropdownLink = document.querySelector('#adminDropdown');
+        if (adminData && adminData.name) {
+            adminDropdownLink.textContent = adminData.name;
+        } else {
+            adminDropdownLink.textContent = 'Admin';
+        }
+
+        function fetchProducts(category = '') {
+            const savedCategory = localStorage.getItem('currentCategory');
+            const useCategory = savedCategory || category;
+
+            fetch(`http://127.0.0.1:3000/products?category=${useCategory}`)
+                .then(response => response.json())
+                .then(products => renderProducts(products))
+                .catch(error => console.error('Error al cargar productos:', error));
+        }
+
+        function filterByCategory() {
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            localStorage.setItem('currentCategory', selectedCategory);
+            fetchProducts(selectedCategory);
+        }
+
+        document.getElementById('categoryFilter').addEventListener('change', filterByCategory);
+
+        // Restaurar la categoría seleccionada previamente
+        const savedCategory = localStorage.getItem('currentCategory');
+        if (savedCategory) {
+            document.getElementById('categoryFilter').value = savedCategory;
+        }
+
+        fetchProducts(); // Llama a fetchProducts para cargar los productos iniciales
+
+        function renderProducts(products) {
+            const tableBody = document.getElementById('productsTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            products.forEach(product => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerHTML = `<img src="${product.imageUrl}" alt="Imagen">`;
+                row.insertCell(1).textContent = product.name;
+                row.insertCell(2).textContent = product.category;
+                row.insertCell(3).textContent = product.description;
+                row.insertCell(4).textContent = product.price;
+                row.insertCell(5).textContent = product.offer || 'N/A';
+                row.insertCell(6).textContent = product.popular ? 'Sí' : 'No';
+                row.insertCell(7).textContent = product.availability;
+                row.insertCell(8).textContent = product.stock;
+                row.insertCell(9).innerHTML = `
+                    <div class="action-buttons">
+                        <button class="btn btn-primary btn-sm" onclick="editProduct('${product._id}')">Editar</button>
+                        <button class="btn btn-danger btn-sm" style="margin-left: 5px;" onclick="deleteProduct('${product._id}', this.parentNode.parentNode)">Eliminar</button>
+                    </div>
+                `;
+            });
+        }
+      
+            window.editProduct = function(productId) {
+    fetch(`http://127.0.0.1:3000/products/${productId}`)
+        .then(response => response.json())
+        .then(product => {
+            // Set values for all inputs
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductDescription').value = product.description;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductOffer').value = product.offer;
+            document.getElementById('editProductPopular').checked = product.popular;
+            document.getElementById('editProductAvailability').value = product.availability;
+            document.getElementById('editProductStock').value = product.stock;
+
+            // Set image preview
+            document.getElementById('editProductImagePreview').src = product.imageUrl;
+
+            // Save the product ID for later
+            document.getElementById('editProductForm').dataset.productId = productId;
+
+            // Show the modal
+            var editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            editModal.show();
+        })
+        .catch(error => console.error('Error:', error));
+};
+
+window.updateProduct = function() {
+    const productId = document.getElementById('editProductForm').dataset.productId;
+
+    const formData = new FormData();
+    formData.append('name', document.getElementById('editProductName').value);
+    formData.append('category', document.getElementById('editProductCategory').value);
+    formData.append('description', document.getElementById('editProductDescription').value);
+    formData.append('price', document.getElementById('editProductPrice').value);
+    formData.append('offer', document.getElementById('editProductOffer').value);
+    formData.append('popular', document.getElementById('editProductPopular').checked);
+    formData.append('availability', document.getElementById('editProductAvailability').value);
+    formData.append('stock', document.getElementById('editProductStock').value);
+
+    // Check if a new image is selected
+    const newImage = document.getElementById('editProductImage').files[0];
+    if (newImage) {
+        formData.append('image', newImage);
+    }
+
+    fetch(`http://127.0.0.1:3000/products/${productId}`, {
+        method: 'PUT', // or 'PATCH' depending on your API
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error updating product');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Close modal and refresh products
+        var editModal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+        editModal.hide();
+        fetchProducts();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
+
+
+// Event listener para manejar el cambio de imagen
+document.getElementById('editProductImage').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editProductImagePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+      
+    window.deleteProduct = function(productId, row) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'No podrás revertir esto.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`http://127.0.0.1:3000/products/${productId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'El producto ha sido eliminado exitosamente.',
+                        'success'
+                    );
+                    // Recargar la lista de productos
+                    fetchProducts();
+                } else {
+                    Swal.fire(
+                        'Error',
+                        'Hubo un error al eliminar el producto.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire(
+                    'Error',
+                    'Hubo un error al eliminar el producto.',
+                    'error'
+                );
+            });
+        }
+    });
+};
+
+
+//*banner
+function loadBanners() {
+            fetch('http://127.0.0.1:3000/banners', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayBanners(data);
+            })
+            .catch(error => {
+                console.error('Error al cargar los banners:', error);
+            });
+        }
+
+        function displayBanners(banners) {
+            const bannersTableBody = document.getElementById('bannersTableBody');
+            bannersTableBody.innerHTML = ''; // Limpiar contenido existente
+
+            banners.forEach(banner => {
+                const row = bannersTableBody.insertRow();
+                row.insertCell(0).innerHTML = `<img src="${banner.imageUrl}" alt="Banner Image" style="width: 500px;">`; // Aumentado el tamaño de la imagen
+                row.insertCell(1).innerHTML = `
+                    
+                    <button class="btn btn-danger btn-sm" onclick="deleteBanner('${banner._id}')">Eliminar</button>
+                `; // Agregar funciones para editar y eliminar
+            });
+        }
+
+        // Función para eliminar un banner
+        window.deleteBanner = function(bannerId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'No podrás revertir esto.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`http://127.0.0.1:3000/banners/${bannerId}`, {
+                method: 'DELETE',
+                credentials: 'include' // Asegúrate de incluir las credenciales si son necesarias
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'El banner ha sido eliminado exitosamente.',
+                        'success'
+                    );
+                    // Recargar la lista de banners
+                    loadBanners();
+                } else {
+                    Swal.fire(
+                        'Error',
+                        'Hubo un error al eliminar el banner.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire(
+                    'Error',
+                    'Hubo un error al eliminar el banner.',
+                    'error'
+                );
+            });
+        }
+    });
+};
+
+
+
+function displayBanners(banners) {
+    const bannersTableBody = document.getElementById('bannersTableBody');
+    bannersTableBody.innerHTML = ''; // Limpiar contenido existente
+
+    banners.forEach(banner => {
+        const row = bannersTableBody.insertRow();
+        row.insertCell(0).innerHTML = `<img src="${banner.imageUrl}" alt="Banner Image" style="width: 500px;">`; // Aumentado el tamaño de la imagen
+        row.insertCell(1).innerHTML = `
+            <button class="btn btn-danger btn-sm" onclick="deleteBanner('${banner._id}')">Eliminar</button>
+        `;
+    });
+}
+
+
+
+
+
+
+            function limpiarFormulario() {
+                document.getElementById("productForm").reset();
+                const previewImage = document.getElementById('previewImage');
+                if (previewImage) {
+                    previewImage.style.display = 'none';
+                }
+            }
+      
+            function cerrarSesion() {
+                fetch('http://127.0.0.1:3000/logout', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        localStorage.removeItem('adminData');
+                        localStorage.removeItem('isLoggedIn');
+                        window.location.href = "login.html";
+                    } else {
+                        alert('Error al cerrar sesión. Inténtalo de nuevo.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cerrar sesión:', error);
+                });
+            }
+        });
+      </script>
+      
+    
+    
+    
+
+</body>
+</html>
